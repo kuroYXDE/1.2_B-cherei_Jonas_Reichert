@@ -16,75 +16,124 @@ namespace _1._2_Bücherei_Jonas_Reichert
             while (true)
             {
                 var input = IntInputFunction(
-                "10: Bücher anzeigen (Wenig Informationen)\n" +
-                "11: Bücher anzeigen (Alle Informationen)\n" +
-                "12: Spezielles Buch anzeigen\n" +
-                "14: Buch hinzufügen\n" +
-                "15: Buch bearbeiten\n" +
-                "16: Buch entfernen\n" +
-                "21: Exemplare anzeigen\n" +
-                "22: Spezielles Exemplar anzeigen\n" +
-                "24: Exemplar hinzufügen\n" +
-                "25: Exemplar bearbeiten\n" +
-                "26: Exemplar entfernen\n" +
-                "31: Ausgeliehene Exemplare anzeigen\n" +
-                "32: Spezielles Ausgeliehenes Exemplar anzeigen\n" +
-                "34: Exemplar ausleihen\n" +
-                "35: Ausleihe bearbeiten\n" +
-                "36: Ausleihe aufheben\n" +
-                "666: Exit Program");
+                "_______________________________\n" +
+                "0: Wenig Informationen         |\n" +
+                "1: Alle Informationen          |\n" +
+                "2: Spezielles Objekt anzeigen  |\n" +
+                "4: Hinzufügen                  |\n" +
+                "5: Bearbeiten                  |\n" +
+                "6: Entfernen                   |\n" +
+                "-------------------------------|\n" +
+                "1: Buch                        |\n" +
+                "2: Buch Exemplar               |\n" +
+                "3: Buch Ausleihe               |\n" +
+                "4: Magazin                     |\n" +
+                "5: Magazin Exemplar            |\n" +
+                "6: Magazin Ausleihe            |\n" +
+                "-------------------------------|\n" +
+                "000: Help                      |\n" +
+                "666: Exit Program              |\n" +
+                "_______________________________|");
                 switch (input)
                 {
-                    case 10:
+                    case 01:
                         pL.DisplayBooksSimple();
                         break;
                     case 11:
                         pL.DisplayBooksExtended();
                         break;
                     case 12:
-                        pL.DisplaySpecificBook(false);
+                        pL.DisplayBookExemplaries();
+                        break;
+                    case 13:
+                        pL.DisplayBooksBorrowed();
                         break;
                     case 14:
-                        pL.AddBook();
+                        pL.DisplayMagazine();
                         break;
                     case 15:
-                        pL.EditBook();
+                        pL.DisplayMagazineExemplaries();
                         break;
                     case 16:
-                        pL.RemoveBook();
+                        pL.DisplayMagazinesBorrowed();
                         break;
                     case 21:
-                        pL.DisplayExemplaries();
+                        pL.DisplaySpecificBook(false);
                         break;
                     case 22:
-                        pL.DisplaySpecificExemplary(false);
+                        pL.DisplaySpecificBookExemplary(false);
+                        break;
+                    case 23:
+                        pL.DisplaySpecificBookBorrow(false);
                         break;
                     case 24:
-                        pL.AddExemplary();
+                        pL.DisplaySpecificMagazine(false);
                         break;
                     case 25:
-                        pL.EditExemplary();
+                        pL.DisplaySpecificMagazineExemplary(false);
                         break;
                     case 26:
-                        pL.RemoveExemplary();
+                        pL.DisplaySpecificMagazineBorrow(false);
                         break;
-                    case 31:
-                        pL.DisplayBorrowed();
+                    case 41:
+                        pL.AddBook();
                         break;
-                    case 32:
-                        pL.DisplaySpecificBorrow(false);
+                    case 42:
+                        pL.AddBookExemplary();
                         break;
-                    case 34:
-                        pL.AddBorrow();
+                    case 43:
+                        pL.AddBookBorrow();
                         break;
-                    case 35:
-                        pL.EditBorrow();
+                    case 44:
+                        pL.AddMagazine();
                         break;
-                    case 36:
-                        pL.RemoveBorrow();
+                    case 45:
+                        pL.AddMagazineExemplary();
+                        break;
+                    case 46:
+                        pL.AddMagazineBorrow();
+                        break;
+                    case 51:
+                        pL.EditBook();
+                        break;
+                    case 52:
+                        pL.EditBookExemplary();
+                        break;
+                    case 53:
+                        pL.EditBookBorrow();
+                        break;
+                    case 54:
+                        pL.EditMagazine();
+                        break;
+                    case 55:
+                        pL.EditMagazineExemplary();
+                        break;
+                    case 56:
+                        pL.EditMagazineBorrow();
+                        break;
+                    case 61:
+                        pL.RemoveBook();
+                        break;
+                    case 62:
+                        pL.RemoveBookExemplary();
+                        break;
+                    case 63:
+                        pL.RemoveBookBorrow();
+                        break;
+                    case 64:
+                        pL.RemoveMagazine();
+                        break;
+                    case 65:
+                        pL.RemoveMagazineExemplary();
+                        break;
+                    case 66:
+                        pL.RemoveMagazineBorrow();
+                        break;
+                    case 000:
+                        ShowHelp();
                         break;
                     case 666:
-                        System.Environment.Exit(0);
+                        Environment.Exit(1);
                         break;
                     default:
                         Console.WriteLine("Geben Sie einen gültigen Wert ein!");
@@ -154,6 +203,10 @@ namespace _1._2_Bücherei_Jonas_Reichert
             return input;
         }
         #endregion
+        static private void ShowHelp()
+        {
+            Console.WriteLine("Some help!");
+        }
         static public void BorderLine()
         {
             Console.WriteLine("==============================");

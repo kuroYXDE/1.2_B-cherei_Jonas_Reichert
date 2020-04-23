@@ -10,7 +10,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         static public List<Models.Magazin> Magazines { get; set; }
         static public List<Models.BuchExemplar> BookExemplaries { get; set; }
         static public List<Models.MagazinExemplar> MagazineExemplaries { get; set; }
-        static public List<Models.Ausleihe> BookBorrowedList { get; set; }
+        static public List<Models.Ausleihe> BooksBorrowedList { get; set; }
         static public List<Models.Ausleihe> MagazineBorrowedList { get; set; }
         static public Models.IDBookmark IC { get; set; }
     }

@@ -53,10 +53,10 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         }
         static public void ReadBookBorrowJson()
         {
-            using (StreamReader r = new StreamReader("Files/borrows.json"))
+            using (StreamReader r = new StreamReader("Files/bookBorrows.json"))
             {
                 string json = r.ReadToEnd();
-                DataLists.BookBorrowedList = JsonConvert.DeserializeObject<List<Models.Ausleihe>>(json);
+                DataLists.BooksBorrowedList = JsonConvert.DeserializeObject<List<Models.Ausleihe>>(json);
             }
         }
         static public void ReadMagazineBorrowJson()
@@ -64,7 +64,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             using (StreamReader r = new StreamReader("Files/magazineBorrows.json"))
             {
                 string json = r.ReadToEnd();
-                DataLists.BookBorrowedList = JsonConvert.DeserializeObject<List<Models.Ausleihe>>(json);
+                DataLists.MagazineBorrowedList = JsonConvert.DeserializeObject<List<Models.Ausleihe>>(json);
             }
         }
         #endregion
@@ -77,7 +77,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         }
         static public void WriteBookJson()
         {
-            string json = JsonConvert.SerializeObject(DataLists.Magazines.ToArray());
+            string json = JsonConvert.SerializeObject(DataLists.Books.ToArray());
             System.IO.File.WriteAllText("Files/books.json", json);
         }
         static public void WriteMagazineJson()
@@ -95,10 +95,15 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             string json = JsonConvert.SerializeObject(DataLists.MagazineExemplaries.ToArray());
             System.IO.File.WriteAllText("Files/magazineExemplaries.json", json);
         }
-        static public void WriteBorrowJson()
+        static public void WriteBookBorrowJson()
         {
-            string json = JsonConvert.SerializeObject(DataLists.BookExemplaries.ToArray());
-            System.IO.File.WriteAllText("Files/borrows.json", json);
+            string json = JsonConvert.SerializeObject(DataLists.BooksBorrowedList.ToArray());
+            System.IO.File.WriteAllText("Files/bookBorrows.json", json);
+        }
+        static public void WriteMagazineBorrowJson()
+        {
+            string json = JsonConvert.SerializeObject(DataLists.MagazineBorrowedList.ToArray());
+            System.IO.File.WriteAllText("Files/magazineBorrows.json", json);
         }
         #endregion
     }

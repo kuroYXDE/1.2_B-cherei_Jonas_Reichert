@@ -10,6 +10,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Models
         public int HighestMagazineID { get; set; }
         public int HighestBookExemplaryID { get; set; }
         public int HighestMagazineExemplaryID { get; set; }
-        public int HighestBorrowID { get; set; }
+        public int HighestBookBorrowID { get; set; }
+        public int HighestMagazineBorrowID { get; set; }
     }
 }

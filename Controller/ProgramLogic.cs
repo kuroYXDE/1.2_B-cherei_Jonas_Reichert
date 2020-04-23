@@ -8,7 +8,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
     class ProgramLogic
     {
         #region Fundamental
-        #region Book
+        #region Book/Magazine
         public void AddBook()
         {
             Models.Buch b = new Models.Buch()
@@ -190,9 +190,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 Console.WriteLine("Solch eine Spalte existiert nicht!");
             Program.BorderLine();
         }
-        #endregion
 
-        #region Magazine
         public void AddMagazine()
         {
             Models.Magazin m = new Models.Magazin()
@@ -739,36 +737,57 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         #region Borrow
         public void AddBookBorrow()
         {
+            var electronic = Program.BoolInputFunction("Wird ein Elektronisches Exemplar verliehen?: ");
             Models.Ausleihe e = new Models.Ausleihe()
             {
-                ID = ++DataLists.IC.HighestBorrowID,
+                ID = ++DataLists.IC.HighestBookBorrowID,
                 Customer = Program.StringInputFunction("Geben Sie die Kundendaten an: "),
                 StartBorrowDate = DateTime.Now,
                 EndBorrowDate = DateTime.Now.AddDays(30),
             };
             var exist = false;
-            var exemplaryID = Program.IntInputFunction("Geben Sie die ID des dazugehörigen Exemplares an: ");
-            foreach (var obj in DataLists.BookExemplaries)
+            var exemplaryID = Program.IntInputFunction("Geben Sie die ID des dazugehörigen Exemplares oder E-Books an: ");
+            if (electronic)
             {
-                if (obj.IsBorrowed)
+                foreach (var bookObj in DataLists.Books)
                 {
-                    Console.WriteLine("Dieses Exemplar wurde schon ausgeliehen!");
-                    exist = true;
-                    break;
+                    if (bookObj.ID == exemplaryID)
+                    {
+                        e.ExemplarBorrowed = bookObj;
+                        e.IsElectronic = true;
+                        exist = true;
+                        break;
+                    }
                 }
-                if (obj.ID == exemplaryID)
+            }
+            if (!electronic)
+            {
+                foreach (var obj in DataLists.BookExemplaries)
                 {
-                    e.ExemplarBorrowed = obj;
-                    obj.IsBorrowed = true;
-                    DataLists.BookBorrowedList.Add(e);
-                    exist = true;
-                    WriteAndReadFile.WriteICJson();
-                    WriteAndReadFile.WriteBorrowJson();
-                    Console.Clear();
-                    DisplaySpecificBorrow(true);
-                    Console.WriteLine("Erfolgreich hinzugefügt!");
-                    break;
+                    if (obj.IsBorrowed)
+                    {
+                        Console.WriteLine("Dieses Exemplar wurde schon ausgeliehen!");
+                        exist = true;
+                        break;
+                    }
+                    if (obj.ID == exemplaryID)
+                    {
+                        obj.IsBorrowed = true;
+                        e.ExemplarBorrowed = obj;
+                        e.IsElectronic = false;
+                        exist = true;
+                        break;
+                    }
                 }
+            }
+            if (exist)
+            {
+                DataLists.BooksBorrowedList.Add(e);
+                WriteAndReadFile.WriteICJson();
+                WriteAndReadFile.WriteBookBorrowJson();
+                Console.Clear();
+                DisplaySpecificBookBorrow(true);
+                Console.WriteLine("Erfolgreich ausgeliehen!");
             }
             if (!exist)
                 Console.WriteLine("Diese ExemplarID existiert nicht!");
@@ -779,15 +798,15 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             bool success = false;
             var removeID = Program.IntInputFunction("Geben Sie die ID des zu löschenden ausgeliehenen Gegenstandes an: ");
 
-            for (int i = 0; i < DataLists.BookBorrowedList.Count; i++)
+            for (int i = 0; i < DataLists.BooksBorrowedList.Count; i++)
             {
-                if (DataLists.BookBorrowedList[i].ID == removeID)
+                if (DataLists.BooksBorrowedList[i].ID == removeID)
                 {
                     //DataLists.BorrowedList[i].ExemplarBorrowed.IsBorrowed = false;
-                    Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)DataLists.BookBorrowedList[i].ExemplarBorrowed;
+                    Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)DataLists.BooksBorrowedList[i].ExemplarBorrowed;
                     bookBorrowObj.IsBorrowed = false;
-                    DataLists.BookBorrowedList[i].ExemplarBorrowed = bookBorrowObj;
-                    DataLists.BookBorrowedList.RemoveAt(i);
+                    //DataLists.BooksBorrowedList[i].ExemplarBorrowed = bookBorrowObj;
+                    DataLists.BooksBorrowedList.RemoveAt(i);
                     Console.WriteLine("Erfolgreich gelöscht!");
                     success = true;
                     WriteAndReadFile.WriteBookExemplaryJson();
@@ -802,50 +821,77 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         }
         public void EditBookBorrow()
         {
-            var success = false;
+            var ausleiheIDExist = false;
             var borrowID = Program.IntInputFunction("Geben Sie die Ausleih ID ein: ");
-            foreach (var borrowObj in DataLists.BookBorrowedList)
+            foreach (var borrowObj in DataLists.BooksBorrowedList)
             {
                 if (borrowObj.ID == borrowID)
                 {
+                    ausleiheIDExist = true;
                     borrowObj.Customer = Program.StringInputFunction("Kundendaten (Leer lassen für keine Änderung): ", borrowObj.Customer);
                     var borrowTime = Program.IntInputFunction("In wieviel Tagen muss der Kunde das Buch zurückgeben? (Geben Sie -1 ein um keine Änderungen vorzunehmen): ", -1);
                     if (borrowTime != -1)
                         borrowObj.EndBorrowDate = DateTime.Now.AddDays(borrowTime);
-                    var exist = false;
-                    Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)borrowObj.ExemplarBorrowed;
-                    var exemplaryID = Program.IntInputFunction("Geben Sie die Exemplar ID an (Leer lassen für keine Änderung): ", bookBorrowObj.ID);
-                    foreach (var exemplaryObj in DataLists.BookExemplaries)
+                    else
+                        borrowObj.EndBorrowDate = DateTime.Now.AddDays(borrowTime);
+                    var exemplaryID = Program.IntInputFunction("Geben Sie die Exemplar ID an (-1 für keine Änderung): ");
+                    if (exemplaryID != -1)
                     {
-                        if (exemplaryObj.ID == exemplaryID)
+                        var exemplaryExist = false;
+                        if (borrowObj.IsElectronic == true)
                         {
-                            borrowObj.ExemplarBorrowed = exemplaryObj;
-                            Console.WriteLine("Leihvorgang wurde erfolgreich Bearbeitet!");
-                            success = true;
-                            exist = true;
-                            Console.Clear();
-                            Console.WriteLine("Erfolgreich geändert!");
-                            break;
+                            foreach (var bookObj in DataLists.Books)
+                            {
+                                if (bookObj.ID == exemplaryID)
+                                {
+                                    borrowObj.ExemplarBorrowed = bookObj;
+                                    exemplaryExist = true;
+                                    break;
+                                }
+                            }
                         }
+                        if (borrowObj.IsElectronic == false)
+                        {
+                            foreach (var exemplaryObj in DataLists.BookExemplaries)
+                            {
+                                if (exemplaryObj.ID == exemplaryID)
+                                {
+                                    borrowObj.ExemplarBorrowed = exemplaryObj;
+                                    exemplaryExist = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!exemplaryExist)
+                            Console.WriteLine("Exemplar ID existiert nicht!");
                     }
-                    if (!exist)
-                        Console.WriteLine("Exemplar ID existiert nicht!");
+                    WriteAndReadFile.WriteBookBorrowJson();
+                    Console.Clear();
+                    Console.WriteLine("Erfolgreich geändert!");
                 }
             }
-            if (!success)
+            if (!ausleiheIDExist)
                 Console.WriteLine("Die Ausleihe ID existiert nicht!");
             Program.BorderLine();
         }
-        public void DisplayBookBorrowed()
+        public void DisplayBooksBorrowed()
         {
-            Console.WriteLine("Ausleih ID | Kunde | Ausgeliehen | Abgabe | Exemplar ID | Buch ID | Autor | Titel");
-            foreach (var obj in DataLists.BookBorrowedList)
+            Console.WriteLine("Ausleih ID | Elektronisch | Kunde | Ausgeliehen | Abgabe | Exemplar ID | Buch ID | Autor | Titel");
+            foreach (var obj in DataLists.BooksBorrowedList)
             {
-                Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)obj.ExemplarBorrowed;
-                Console.WriteLine("{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7}",
-                    obj.ID, obj.Customer, obj.StartBorrowDate, obj.EndBorrowDate, bookBorrowObj.ID, bookBorrowObj.BookBelonging.ID, bookBorrowObj.BookBelonging.Author_Publisher, bookBorrowObj.BookBelonging.Title);
+                if (obj.IsElectronic == true)
+                {
+                    Models.Buch bookBorrowObj = (Models.Buch)obj.ExemplarBorrowed;
+                    Console.WriteLine("{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
+                        obj.ID, obj.IsElectronic, obj.Customer, obj.StartBorrowDate, obj.EndBorrowDate, "-", bookBorrowObj.ID, bookBorrowObj.Author_Publisher, bookBorrowObj.Title);
+                }
+                if (obj.IsElectronic == false)
+                {
+                    Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)obj.ExemplarBorrowed;
+                    Console.WriteLine("{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
+                        obj.ID, obj.IsElectronic, obj.Customer, obj.StartBorrowDate, obj.EndBorrowDate, bookBorrowObj.ID, bookBorrowObj.BookBelonging.ID, bookBorrowObj.BookBelonging.Author_Publisher, bookBorrowObj.BookBelonging.Title);
+                }
             }
-                
             Program.BorderLine();
         }
         public void DisplaySpecificBookBorrow(bool lastBorrow)
@@ -859,35 +905,55 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             {
                 var searchFor = 0;
                 if (lastBorrow)
-                    searchFor = DataLists.IC.HighestBorrowID;
+                    searchFor = DataLists.IC.HighestBookBorrowID;
                 else
                     searchFor = Program.IntInputFunction("Nach welcher ID suchen Sie?: ");
-                foreach (var borrowObj in DataLists.BookBorrowedList)
+                foreach (var borrowObj in DataLists.BooksBorrowedList)
                 {
                     if (borrowObj.ID == searchFor)
                     {
-                        Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)borrowObj.ExemplarBorrowed;
-                        Console.WriteLine("Ausleih ID | Kunde | Ausgeliehen | Abgabe | Exemplar ID | Buch ID |Autor | Titel");
-                        Console.WriteLine(
-                            "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7}",
-                            borrowObj.ID, borrowObj.Customer, borrowObj.StartBorrowDate, borrowObj.EndBorrowDate, bookBorrowObj.ID, bookBorrowObj.BookBelonging.ID, bookBorrowObj.BookBelonging.Author_Publisher, bookBorrowObj.BookBelonging.Title
-                            );
+                        if (borrowObj.IsElectronic == true)
+                        {
+                            Models.Buch bookBorrowObj = (Models.Buch)borrowObj.ExemplarBorrowed;
+                            Console.WriteLine("Ausleih ID | Elektronisch | Kunde | Ausgeliehen | Abgabe | Exemplar ID | Buch ID |Autor | Titel");
+                            Console.WriteLine(
+                                "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
+                                borrowObj.ID, borrowObj.IsElectronic, borrowObj.Customer, borrowObj.StartBorrowDate, borrowObj.EndBorrowDate, "-", bookBorrowObj.ID, bookBorrowObj.Author_Publisher, bookBorrowObj.Title);
+                        }
+                        if (borrowObj.IsElectronic == false)
+                        {
+                            Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)borrowObj.ExemplarBorrowed;
+                            Console.WriteLine("Ausleih ID | Elektronisch | Kunde | Ausgeliehen | Abgabe | Exemplar ID | Buch ID |Autor | Titel");
+                            Console.WriteLine(
+                                "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
+                                borrowObj.ID, borrowObj.IsElectronic, borrowObj.Customer, borrowObj.StartBorrowDate, borrowObj.EndBorrowDate, bookBorrowObj.ID, bookBorrowObj.BookBelonging.ID, bookBorrowObj.BookBelonging.Author_Publisher, bookBorrowObj.BookBelonging.Title);
+                        }
                     }
                 }
             }
             else if (searchColumn == "kunde")
             {
                 var searchFor = Program.StringInputFunction("Nach welchen Kunden suchen Sie?: ");
-                foreach (var borrowObj in DataLists.BookBorrowedList)
+                foreach (var borrowObj in DataLists.MagazineBorrowedList)
                 {
                     if (borrowObj.Customer == searchFor)
                     {
-                        Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)borrowObj.ExemplarBorrowed;
-                        Console.WriteLine("Ausleih ID | Kunde | Ausgeliehen | Abgabe | Exemplar ID | Buch ID |Author | Titel");
-                        Console.WriteLine(
-                            "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7}",
-                            borrowObj.ID, borrowObj.Customer, borrowObj.StartBorrowDate, borrowObj.EndBorrowDate, bookBorrowObj.ID, bookBorrowObj.BookBelonging.ID, bookBorrowObj.BookBelonging.Author_Publisher, bookBorrowObj.BookBelonging.Title
-                            );
+                        if (borrowObj.IsElectronic == true)
+                        {
+                            Models.Buch bookBorrowObj = (Models.Buch)borrowObj.ExemplarBorrowed;
+                            Console.WriteLine("Ausleih ID | Elektronisch | Kunde | Ausgeliehen | Abgabe | Exemplar ID | Buch ID |Author | Titel");
+                            Console.WriteLine(
+                                "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7}",
+                                borrowObj.ID, borrowObj.IsElectronic, borrowObj.Customer, borrowObj.StartBorrowDate, borrowObj.EndBorrowDate, "-", bookBorrowObj.ID, bookBorrowObj.Author_Publisher, bookBorrowObj.Title);
+                        }
+                        if (borrowObj.IsElectronic == false)
+                        {
+                            Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)borrowObj.ExemplarBorrowed;
+                            Console.WriteLine("Ausleih ID | Elektronisch | Kunde | Ausgeliehen | Abgabe | Exemplar ID | Buch ID |Author | Titel");
+                            Console.WriteLine(
+                                "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7}",
+                                borrowObj.ID, borrowObj.IsElectronic, borrowObj.Customer, borrowObj.StartBorrowDate, borrowObj.EndBorrowDate, bookBorrowObj.ID, bookBorrowObj.BookBelonging.ID, bookBorrowObj.BookBelonging.Author_Publisher, bookBorrowObj.BookBelonging.Title);
+                        }
                     }
                 }
             }
@@ -898,44 +964,165 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
 
         public void AddMagazineBorrow()
         {
+            var electronic = Program.BoolInputFunction("Wird ein Elektronisches Exemplar verliehen?: ");
             Models.Ausleihe e = new Models.Ausleihe()
             {
-                ID = ++DataLists.IC.HighestBorrowID,
+                ID = ++DataLists.IC.HighestMagazineBorrowID,
                 Customer = Program.StringInputFunction("Geben Sie die Kundendaten an: "),
                 StartBorrowDate = DateTime.Now,
                 EndBorrowDate = DateTime.Now.AddDays(2),
             };
             var exist = false;
             var exemplaryID = Program.IntInputFunction("Geben Sie die ID des dazugehörigen Exemplares an: ");
-            foreach (var obj in DataLists.BookExemplaries)
+            if (electronic)
             {
-                if (obj.IsBorrowed)
+                foreach (var magazineObj in DataLists.Magazines)
                 {
-                    Console.WriteLine("Dieses Exemplar wurde schon ausgeliehen!");
-                    exist = true;
-                    break;
+                    if (magazineObj.ID == exemplaryID)
+                    {
+                        e.ExemplarBorrowed = magazineObj;
+                        e.IsElectronic = true;
+                        exist = true;
+                        break;
+                    }
                 }
-                if (obj.ID == exemplaryID)
+            }
+            if (!electronic)
+            {
+                foreach (var magazineObj in DataLists.MagazineExemplaries)
                 {
-                    e.ExemplarBorrowed = obj;
-                    obj.IsBorrowed = true;
-                    DataLists.BookBorrowedList.Add(e);
-                    exist = true;
-                    WriteAndReadFile.WriteICJson();
-                    WriteAndReadFile.WriteBorrowJson();
-                    Console.Clear();
-                    DisplaySpecificBorrow(true);
-                    Console.WriteLine("Erfolgreich hinzugefügt!");
-                    break;
+                    if (magazineObj.IsBorrowed)
+                    {
+                        Console.WriteLine("Dieses Exemplar wurde schon ausgeliehen!");
+                        exist = true;
+                        break;
+                    }
+                    if (magazineObj.ID == exemplaryID)
+                    {
+                        magazineObj.IsBorrowed = true;
+                        e.ExemplarBorrowed = magazineObj;
+                        e.IsElectronic = false;
+                        exist = true;
+                        break;
+                    }
                 }
+            }
+            if (exist)
+            {
+                DataLists.MagazineBorrowedList.Add(e);
+                WriteAndReadFile.WriteICJson();
+                WriteAndReadFile.WriteMagazineBorrowJson();
+                Console.Clear();
+                DisplaySpecificMagazineBorrow(true);
+                Console.WriteLine("Erfolgreich hinzugefügt!");
             }
             if (!exist)
                 Console.WriteLine("Diese ExemplarID existiert nicht!");
             Program.BorderLine();
         }
-        #endregion
-        #endregion
+        public void RemoveMagazineBorrow()
+        {
+            bool success = false;
+            var removeID = Program.IntInputFunction("Geben Sie die ID des zu löschenden ausgeliehenen Gegenstandes an: ");
 
+            for (int i = 0; i < DataLists.MagazineBorrowedList.Count; i++)
+            {
+                if (DataLists.MagazineBorrowedList[i].ID == removeID)
+                {
+                    //DataLists.BorrowedList[i].ExemplarBorrowed.IsBorrowed = false;
+                    Models.MagazinExemplar bookBorrowObj = (Models.MagazinExemplar)DataLists.MagazineBorrowedList[i].ExemplarBorrowed;
+                    bookBorrowObj.IsBorrowed = false;
+                    //DataLists.BookBorrowedList[i].ExemplarBorrowed = bookBorrowObj;
+                    DataLists.MagazineBorrowedList.RemoveAt(i);
+                    Console.WriteLine("Erfolgreich gelöscht!");
+                    success = true;
+                    WriteAndReadFile.WriteMagazineExemplaryJson();
+                    Console.Clear();
+                    Console.WriteLine("Erfolgreich gelöscht!");
+                    break;
+                }
+            }
+            if (!success)
+                Console.WriteLine("Das Exemplar mit dieser ID existiert nicht!");
+            Program.BorderLine();
+        }
+        public void EditMagazineBorrow()
+        {
+            var ausleiheIDExist = false;
+            var borrowID = Program.IntInputFunction("Geben Sie die Ausleih ID ein: ");
+            foreach (var borrowObj in DataLists.MagazineBorrowedList)
+            {
+                if (borrowObj.ID == borrowID)
+                {
+                    ausleiheIDExist = true;
+                    borrowObj.Customer = Program.StringInputFunction("Kundendaten (Leer lassen für keine Änderung): ", borrowObj.Customer);
+                    var borrowTime = Program.IntInputFunction("In wieviel Tagen muss der Kunde das Buch zurückgeben? (Geben Sie -1 ein um keine Änderungen vorzunehmen): ", -1);
+                    if (borrowTime != -1)
+                        borrowObj.EndBorrowDate = DateTime.Now.AddDays(borrowTime);
+                    else
+                        borrowObj.EndBorrowDate = DateTime.Now.AddDays(borrowTime);
+                    var exemplaryID = Program.IntInputFunction("Geben Sie die Exemplar ID an (-1 für keine Änderung): ");
+                    if (exemplaryID != -1)
+                    {
+                        var exemplaryExist = false;
+                        if (borrowObj.IsElectronic == true)
+                        {
+                            foreach (var bookObj in DataLists.Magazines)
+                            {
+                                if (bookObj.ID == exemplaryID)
+                                {
+                                    borrowObj.ExemplarBorrowed = bookObj;
+                                    exemplaryExist = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (borrowObj.IsElectronic == false)
+                        {
+                            foreach (var exemplaryObj in DataLists.MagazineExemplaries)
+                            {
+                                if (exemplaryObj.ID == exemplaryID)
+                                {
+                                    borrowObj.ExemplarBorrowed = exemplaryObj;
+                                    exemplaryExist = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!exemplaryExist)
+                            Console.WriteLine("Exemplar ID existiert nicht!");
+                    }
+                    WriteAndReadFile.WriteMagazineBorrowJson();
+                    Console.Clear();
+                    Console.WriteLine("Erfolgreich geändert!");
+                }
+            }
+            if (!ausleiheIDExist)
+                Console.WriteLine("Die Ausleihe ID existiert nicht!");
+            Program.BorderLine();
+        }
+        public void DisplayMagazinesBorrowed()
+        {
+            Console.WriteLine("Ausleih ID | Elektronisch | Kunde | Ausgeliehen | Abgabe | Exemplar ID | Buch ID | Autor | Titel");
+            foreach (var obj in DataLists.MagazineBorrowedList)
+            {
+                if (obj.IsElectronic == true)
+                {
+                    Models.Magazin bookBorrowObj = (Models.Magazin)obj.ExemplarBorrowed;
+                    Console.WriteLine("{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
+                        obj.ID, obj.IsElectronic, obj.Customer, obj.StartBorrowDate, obj.EndBorrowDate, "-", bookBorrowObj.ID, bookBorrowObj.Author_Publisher, bookBorrowObj.Title);
+                }
+                if (obj.IsElectronic == false)
+                {
+                    Models.MagazinExemplar bookBorrowObj = (Models.MagazinExemplar)obj.ExemplarBorrowed;
+                    Console.WriteLine("{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
+                        obj.ID, obj.IsElectronic, obj.Customer, obj.StartBorrowDate, obj.EndBorrowDate, bookBorrowObj.ID, bookBorrowObj.MagazineBelonging.ID, bookBorrowObj.MagazineBelonging.Author_Publisher, bookBorrowObj.MagazineBelonging.Title);
+                }
+            }
+            Program.BorderLine();
+        }
+        #endregion
+        #endregion
         #region Start
         public void ProofExistingFile()
         {
@@ -944,11 +1131,15 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 DataLists.IC = new Models.IDBookmark()
                 {
                     HighestBookID = 0,
+                    HighestMagazineID = 0,
                     HighestBookExemplaryID = 0,
-                    HighestBorrowID = 0,
+                    HighestMagazineExemplaryID = 0,
+                    HighestBookBorrowID = 0,
+                    HighestMagazineBorrowID = 0,
                 };
                 WriteAndReadFile.WriteICJson();
                 WriteAndReadFile.ReadBookJson();
+                WriteAndReadFile.ReadMagazineJson();
                 AddBookID();
                 CreateFirstExemplaries();
                 CreateBorrowJson();
@@ -958,13 +1149,16 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             {
                 WriteAndReadFile.ReadICJson();
                 WriteAndReadFile.ReadBookJson();
+                WriteAndReadFile.ReadMagazineJson();
                 WriteAndReadFile.ReadBookExemplaryJson();
-                WriteAndReadFile.ReadBorrowJson();
+                WriteAndReadFile.ReadMagazineExemplaryJson();
+                WriteAndReadFile.ReadBookBorrowJson();
+                WriteAndReadFile.ReadMagazineBorrowJson();
             }
         }
         public void AddBookID()
         {
-            foreach (var bookObj in DataLists.Magazines)
+            foreach (var bookObj in DataLists.Books)
             {
                 DataLists.IC.HighestBookID++;
                 bookObj.ID = DataLists.IC.HighestBookID;
@@ -994,12 +1188,115 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                     });
             }
             WriteAndReadFile.WriteBookExemplaryJson();
+            
+            DataLists.MagazineExemplaries = new List<Models.MagazinExemplar>();
+            foreach (var magazineObj in DataLists.Magazines)
+            {
+                DataLists.IC.HighestMagazineExemplaryID++;
+                Models.MagazinExemplar e1 = new Models.MagazinExemplar()
+                {
+                    ID = DataLists.IC.HighestMagazineExemplaryID,
+                    IsBorrowed = false,
+                    MagazineBelonging = magazineObj,
+                };
+                DataLists.MagazineExemplaries.Add(e1);
+                DataLists.IC.HighestMagazineExemplaryID++;
+                DataLists.MagazineExemplaries.Add(
+                    new Models.MagazinExemplar
+                    {
+                        ID = DataLists.IC.HighestMagazineExemplaryID,
+                        IsBorrowed = false,
+                        MagazineBelonging = magazineObj,
+                    });
+            }
+            WriteAndReadFile.WriteMagazineExemplaryJson();
         }
         public void CreateBorrowJson()
         {
-            DataLists.BookBorrowedList = new List<Models.Ausleihe>();
-            WriteAndReadFile.WriteBorrowJson();
+            DataLists.BooksBorrowedList = new List<Models.Ausleihe>();
+            DataLists.MagazineBorrowedList = new List<Models.Ausleihe>();
+            WriteAndReadFile.WriteBookBorrowJson();
+            WriteAndReadFile.WriteMagazineBorrowJson();
         }
+        public void DisplaySpecificMagazineBorrow(bool lastBorrow)
+        {
+            var searchColumn = "";
+            if (lastBorrow)
+                searchColumn = "id";
+            else
+                searchColumn = Program.StringInputFunction("Welche Spalte soll durchsucht werden?: ").ToLower();
+            if (searchColumn == "id")
+            {
+                var searchFor = 0;
+                if (lastBorrow)
+                    searchFor = DataLists.IC.HighestMagazineBorrowID;
+                else
+                    searchFor = Program.IntInputFunction("Nach welcher ID suchen Sie?: ");
+                foreach (var borrowObj in DataLists.MagazineBorrowedList)
+                {
+                    if (borrowObj.ID == searchFor)
+                    {
+                        if (borrowObj.IsElectronic == true)
+                        {
+                            Models.Magazin magazinBorrowObj = (Models.Magazin)borrowObj.ExemplarBorrowed;
+                            Console.WriteLine("Ausleih ID | Elektronisch | Kunde | Ausgeliehen | Abgabe | Exemplar ID | Buch ID |Autor | Titel");
+                            Console.WriteLine(
+                                "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
+                                borrowObj.ID, borrowObj.IsElectronic, borrowObj.Customer, borrowObj.StartBorrowDate, borrowObj.EndBorrowDate, "-", magazinBorrowObj.ID, magazinBorrowObj.Author_Publisher, magazinBorrowObj.Title);
+                        }
+                        if (borrowObj.IsElectronic == false)
+                        {
+                            Models.MagazinExemplar magazineBorrowObj = (Models.MagazinExemplar)borrowObj.ExemplarBorrowed;
+                            Console.WriteLine("Ausleih ID | Elektronisch | Kunde | Ausgeliehen | Abgabe | Exemplar ID | Buch ID |Autor | Titel");
+                            Console.WriteLine(
+                                "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
+                                borrowObj.ID, borrowObj.IsElectronic, borrowObj.Customer, borrowObj.StartBorrowDate, borrowObj.EndBorrowDate, magazineBorrowObj.ID, magazineBorrowObj.MagazineBelonging.ID, magazineBorrowObj.MagazineBelonging.Author_Publisher, magazineBorrowObj.MagazineBelonging.Title);
+                        }
+                    }
+                }
+            }
+            else if (searchColumn == "kunde")
+            {
+                var searchFor = Program.StringInputFunction("Nach welchen Kunden suchen Sie?: ");
+                foreach (var borrowObj in DataLists.MagazineBorrowedList)
+                {
+                    if (borrowObj.Customer == searchFor)
+                    {
+                        if (borrowObj.IsElectronic == true)
+                        {
+                            Models.Magazin magazinBorrowObj = (Models.Magazin)borrowObj.ExemplarBorrowed;
+                            Console.WriteLine("Ausleih ID | Elektronisch | Kunde | Ausgeliehen | Abgabe | Exemplar ID | Buch ID |Author | Titel");
+                            Console.WriteLine(
+                                "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7}",
+                                borrowObj.ID, borrowObj.IsElectronic, borrowObj.Customer, borrowObj.StartBorrowDate, borrowObj.EndBorrowDate, "-", magazinBorrowObj.ID, magazinBorrowObj.Author_Publisher, magazinBorrowObj.Title);
+                        }
+                        if (borrowObj.IsElectronic == false)
+                        {
+                            Models.MagazinExemplar magazinBorrowObj = (Models.MagazinExemplar)borrowObj.ExemplarBorrowed;
+                            Console.WriteLine("Ausleih ID | Elektronisch | Kunde | Ausgeliehen | Abgabe | Exemplar ID | Buch ID |Author | Titel");
+                            Console.WriteLine(
+                                "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7}",
+                                borrowObj.ID, borrowObj.IsElectronic, borrowObj.Customer, borrowObj.StartBorrowDate, borrowObj.EndBorrowDate, magazinBorrowObj.ID, magazinBorrowObj.MagazineBelonging.ID, magazinBorrowObj.MagazineBelonging.Author_Publisher, magazinBorrowObj.MagazineBelonging.Title);
+                        }
+                    }
+                }
+            }
+            else
+                Console.WriteLine("Solch eine Spalte existiert nicht!");
+            Program.BorderLine();
+        }
+
+        private void ProofBookBorrowList()
+        {
+            foreach (var obj in DataLists.BooksBorrowedList)
+            {
+                if (obj.IsElectronic == true)
+                {
+
+                }
+            }
+        }
+
         #endregion
     }
 }
