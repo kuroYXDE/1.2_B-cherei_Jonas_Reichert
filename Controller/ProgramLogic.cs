@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace _1._2_Bücherei_Jonas_Reichert.Controller
 {
@@ -1154,6 +1158,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 WriteAndReadFile.ReadMagazineExemplaryJson();
                 WriteAndReadFile.ReadBookBorrowJson();
                 WriteAndReadFile.ReadMagazineBorrowJson();
+                ProofBorrowLists();
             }
         }
         public void AddBookID()
@@ -1286,17 +1291,67 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             Program.BorderLine();
         }
 
-        private void ProofBookBorrowList()
+        private void ProofBorrowLists()
         {
             foreach (var obj in DataLists.BooksBorrowedList)
             {
                 if (obj.IsElectronic == true)
                 {
-
+                    JObject o = JObject.Parse(obj.ExemplarBorrowed.ToString());
+                    Models.Buch b = o.ToObject<Models.Buch>();
+                    foreach (var dataObj in DataLists.Books)
+                    {
+                        if (b.ID == dataObj.ID)
+                        {
+                            obj.ExemplarBorrowed = dataObj;
+                            break;
+                        }
+                    }
+                }
+                if (obj.IsElectronic == false)
+                {
+                    JObject o = JObject.Parse(obj.ExemplarBorrowed.ToString());
+                    Models.BuchExemplar b = o.ToObject<Models.BuchExemplar>();
+                    foreach (var dataObj in DataLists.BookExemplaries)
+                    {
+                        if (b.ID == dataObj.ID)
+                        {
+                            obj.ExemplarBorrowed = dataObj;
+                            break;
+                        }
+                    }
+                }
+            }
+            foreach (var obj in DataLists.MagazineBorrowedList)
+            {
+                if (obj.IsElectronic == true)
+                {
+                    JObject o = JObject.Parse(obj.ExemplarBorrowed.ToString());
+                    Models.Magazin m = o.ToObject<Models.Magazin>();
+                    foreach (var dataObj in DataLists.Magazines)
+                    {
+                        if (m.ID == dataObj.ID)
+                        {
+                            obj.ExemplarBorrowed = dataObj;
+                            break;
+                        }
+                    }
+                }
+                if (obj.IsElectronic == false)
+                {
+                    JObject o = JObject.Parse(obj.ExemplarBorrowed.ToString());
+                    Models.MagazinExemplar m = o.ToObject<Models.MagazinExemplar>();
+                    foreach (var dataObj in DataLists.MagazineExemplaries)
+                    {
+                        if (m.ID == dataObj.ID)
+                        {
+                            obj.ExemplarBorrowed = dataObj;
+                            break;
+                        }
+                    }
                 }
             }
         }
-
         #endregion
     }
 }
