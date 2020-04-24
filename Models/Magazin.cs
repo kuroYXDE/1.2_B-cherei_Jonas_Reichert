@@ -11,5 +11,6 @@ namespace _1._2_Bücherei_Jonas_Reichert.Models
         public string Title { get; set; }
         public string Group { get; set; }
         public string Topic { get; set; }
+        public int borrowed { get; set; }
     }
 }

@@ -133,6 +133,13 @@ namespace _1._2_Bücherei_Jonas_Reichert
                         ShowHelp();
                         break;
                     case 666:
+                        Controller.WriteAndReadFile.WriteICJson();
+                        Controller.WriteAndReadFile.WriteBookJson();
+                        Controller.WriteAndReadFile.WriteBookExemplaryJson();
+                        Controller.WriteAndReadFile.WriteBookBorrowJson();
+                        Controller.WriteAndReadFile.WriteMagazineJson();
+                        Controller.WriteAndReadFile.WriteMagazineExemplaryJson();
+                        Controller.WriteAndReadFile.WriteMagazineBorrowJson();
                         Environment.Exit(1);
                         break;
                     default:

@@ -37,46 +37,43 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         }
         public void RemoveBook()
         {
-            var success = false;
             var borrowed = false;
             var removeID = Program.IntInputFunction("Geben Sie die ID des zu löschenden Buches an: ");
 
-            for (int i = 0; i < DataLists.Books.Count; i++)
+            var bookIdExisting = false;
+            foreach (var bookObj in DataLists.Books)
             {
-                if (DataLists.Books[i].ID == removeID)
+                if (bookObj.ID == removeID)
                 {
+                    bookIdExisting = true;
+                    var exemplaryRemoveList = new List<int>();
+                    var counter = 0;
                     foreach (var exemplaryObj in DataLists.BookExemplaries)
                     {
-                        if (exemplaryObj.BookBelonging.ID == removeID && exemplaryObj.IsBorrowed == true)
+                        if (exemplaryObj.IsBorrowed == true)
                         {
+                            Console.WriteLine("Eines der Exemplare ist noch verborgt!");
                             borrowed = true;
                             break;
                         }
+                        else
+                            exemplaryRemoveList.Add(counter - exemplaryRemoveList.Count);
                     }
-                    if (borrowed)
-                        break;
-                    for (int x = 0; x < DataLists.BookExemplaries.Count; x++)
+                    if (borrowed == false)
                     {
-                        if (DataLists.BookExemplaries[x].BookBelonging.ID == removeID)
-                        {
-                            DataLists.BookExemplaries.RemoveAt(x);
-                            x--;
-                        }
+                        foreach (var element in exemplaryRemoveList)
+                            DataLists.BookExemplaries.RemoveAt(element);
+                        DataLists.Books.Remove(bookObj);
+                        WriteAndReadFile.WriteBookJson();
+                        WriteAndReadFile.WriteBookExemplaryJson();
+                        Console.Clear();
+                        Console.WriteLine("Buch mit dazugehörigen Exemplaren erfolgreich gelöscht.");
+                        break;
                     }
-                    DataLists.Books.RemoveAt(i);
-                    WriteAndReadFile.WriteBookJson();
-                    WriteAndReadFile.WriteBookExemplaryJson();
-                    success = true;
-                    Console.Clear();
-                    Console.WriteLine("Erfolgreich gelöscht!");
-                    break;
                 }
             }
-            if (borrowed)
-                Console.WriteLine("Eines der Exemplare ist noch ausgeliehen!");
-            else if (!success)
-                Console.WriteLine("Das Buch mit dieser ID existiert nicht!");
-            Program.BorderLine();
+            if (bookIdExisting == false)
+                Console.WriteLine("Ein Buch mit dieser ID existiert nicht!");
         }
         public void EditBook()
         {
@@ -215,46 +212,43 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         }
         public void RemoveMagazine()
         {
-            var success = false;
             var borrowed = false;
-            var removeID = Program.IntInputFunction("Geben Sie die ID des zu löschenden Magazins an: ");
+            var removeID = Program.IntInputFunction("Geben Sie die ID des zu löschenden Buches an: ");
 
-            for (int i = 0; i < DataLists.Magazines.Count; i++)
+            var bookIdExisting = false;
+            foreach (var magazineObj in DataLists.Magazines)
             {
-                if (DataLists.Magazines[i].ID == removeID)
+                if (magazineObj.ID == removeID)
                 {
+                    bookIdExisting = true;
+                    var exemplaryRemoveList = new List<int>();
+                    var counter = 0;
                     foreach (var exemplaryObj in DataLists.MagazineExemplaries)
                     {
-                        if (exemplaryObj.MagazineBelonging.ID == removeID && exemplaryObj.IsBorrowed == true)
+                        if (exemplaryObj.IsBorrowed == true)
                         {
+                            Console.WriteLine("Eines der Exemplare ist noch verborgt!");
                             borrowed = true;
                             break;
                         }
+                        else
+                            exemplaryRemoveList.Add(counter - exemplaryRemoveList.Count);
                     }
-                    if (borrowed)
-                        break;
-                    for (int x = 0; x < DataLists.MagazineExemplaries.Count; x++)
+                    if (borrowed == false)
                     {
-                        if (DataLists.MagazineExemplaries[x].MagazineBelonging.ID == removeID)
-                        {
-                            DataLists.MagazineExemplaries.RemoveAt(x);
-                            x--;
-                        }
+                        foreach (var element in exemplaryRemoveList)
+                            DataLists.MagazineExemplaries.RemoveAt(element);
+                        DataLists.Magazines.Remove(magazineObj);
+                        WriteAndReadFile.WriteBookJson();
+                        WriteAndReadFile.WriteBookExemplaryJson();
+                        Console.Clear();
+                        Console.WriteLine("Buch mit dazugehörigen Exemplaren erfolgreich gelöscht.");
+                        break;
                     }
-                    DataLists.Magazines.RemoveAt(i);
-                    WriteAndReadFile.WriteMagazineJson();
-                    WriteAndReadFile.WriteMagazineExemplaryJson();
-                    success = true;
-                    Console.Clear();
-                    Console.WriteLine("Erfolgreich gelöscht!");
-                    break;
                 }
             }
-            if (borrowed)
-                Console.WriteLine("Eines der Magazin-Exemplare ist noch ausgeliehen!");
-            else if (!success)
-                Console.WriteLine("Das Magazin mit dieser ID existiert nicht!");
-            Program.BorderLine();
+            if (bookIdExisting == false)
+                Console.WriteLine("Ein Buch mit dieser ID existiert nicht!");
         }
         public void EditMagazine()
         {
@@ -759,6 +753,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                     {
                         e.ExemplarBorrowed = bookObj;
                         e.IsElectronic = true;
+                        bookObj.borrowed++;
                         exist = true;
                         break;
                     }
@@ -789,6 +784,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 DataLists.BooksBorrowedList.Add(e);
                 WriteAndReadFile.WriteICJson();
                 WriteAndReadFile.WriteBookBorrowJson();
+                WriteAndReadFile.WriteBookExemplaryJson();
                 Console.Clear();
                 DisplaySpecificBookBorrow(true);
                 Console.WriteLine("Erfolgreich ausgeliehen!");
@@ -802,22 +798,34 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             bool success = false;
             var removeID = Program.IntInputFunction("Geben Sie die ID des zu löschenden ausgeliehenen Gegenstandes an: ");
 
-            for (int i = 0; i < DataLists.BooksBorrowedList.Count; i++)
+            foreach (var borrowObj in DataLists.BooksBorrowedList)
             {
-                if (DataLists.BooksBorrowedList[i].ID == removeID)
+                if (borrowObj.ID == removeID)
                 {
-                    //DataLists.BorrowedList[i].ExemplarBorrowed.IsBorrowed = false;
-                    Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)DataLists.BooksBorrowedList[i].ExemplarBorrowed;
-                    bookBorrowObj.IsBorrowed = false;
-                    //DataLists.BooksBorrowedList[i].ExemplarBorrowed = bookBorrowObj;
-                    DataLists.BooksBorrowedList.RemoveAt(i);
-                    Console.WriteLine("Erfolgreich gelöscht!");
-                    success = true;
+                    if (borrowObj.ID == removeID && borrowObj.IsElectronic)
+                    {
+                        Models.Buch bookBorrowObj = (Models.Buch)borrowObj.ExemplarBorrowed;
+                        bookBorrowObj.borrowed--;
+                        DataLists.BooksBorrowedList.Remove(borrowObj);
+                        Console.WriteLine("Erfolgreich gelöscht!");
+                        success = true;
+                        break;
+                    }
+                    if (borrowObj.ID == removeID && !borrowObj.IsElectronic)
+                    {
+                        Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)DataLists.BooksBorrowedList[i].ExemplarBorrowed;
+                        bookBorrowObj.IsBorrowed = false;
+                        DataLists.BooksBorrowedList.Remove(borrowObj);
+                        Console.WriteLine("Erfolgreich gelöscht!");
+                        success = true;
+                        WriteAndReadFile.WriteBookExemplaryJson();
+                        break;
+                    }
                     WriteAndReadFile.WriteBookExemplaryJson();
                     Console.Clear();
                     Console.WriteLine("Erfolgreich gelöscht!");
-                    break;
                 }
+                
             }
             if (!success)
                 Console.WriteLine("Das Exemplar mit dieser ID existiert nicht!");
@@ -986,6 +994,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                     {
                         e.ExemplarBorrowed = magazineObj;
                         e.IsElectronic = true;
+                        magazineObj.borrowed++;
                         exist = true;
                         break;
                     }
@@ -1016,6 +1025,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 DataLists.MagazineBorrowedList.Add(e);
                 WriteAndReadFile.WriteICJson();
                 WriteAndReadFile.WriteMagazineBorrowJson();
+                WriteAndReadFile.WriteBookExemplaryJson();
                 Console.Clear();
                 DisplaySpecificMagazineBorrow(true);
                 Console.WriteLine("Erfolgreich hinzugefügt!");
@@ -1355,3 +1365,6 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         #endregion
     }
 }
+
+//Buch löschen abfragen ob verliehen
+//buch aus borrow removen mit elektronisch --> kann man kürzer schreiben und muss noch zu magzin
