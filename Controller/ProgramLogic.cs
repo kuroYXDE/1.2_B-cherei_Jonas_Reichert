@@ -807,23 +807,23 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                         Models.Buch bookBorrowObj = (Models.Buch)borrowObj.ExemplarBorrowed;
                         bookBorrowObj.borrowed--;
                         DataLists.BooksBorrowedList.Remove(borrowObj);
+                        WriteAndReadFile.WriteBookJson();
                         Console.WriteLine("Erfolgreich gelöscht!");
                         success = true;
-                        break;
                     }
                     if (borrowObj.ID == removeID && !borrowObj.IsElectronic)
                     {
                         Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)DataLists.BooksBorrowedList[i].ExemplarBorrowed;
                         bookBorrowObj.IsBorrowed = false;
                         DataLists.BooksBorrowedList.Remove(borrowObj);
+                        WriteAndReadFile.WriteBookExemplaryJson();
                         Console.WriteLine("Erfolgreich gelöscht!");
                         success = true;
-                        WriteAndReadFile.WriteBookExemplaryJson();
-                        break;
                     }
-                    WriteAndReadFile.WriteBookExemplaryJson();
+                    WriteAndReadFile.WriteBookBorrowJson();
                     Console.Clear();
                     Console.WriteLine("Erfolgreich gelöscht!");
+                    break;
                 }
                 
             }
@@ -1039,18 +1039,29 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             bool success = false;
             var removeID = Program.IntInputFunction("Geben Sie die ID des zu löschenden ausgeliehenen Gegenstandes an: ");
 
-            for (int i = 0; i < DataLists.MagazineBorrowedList.Count; i++)
+            foreach (var borrowObj in DataLists.MagazineBorrowedList)
             {
-                if (DataLists.MagazineBorrowedList[i].ID == removeID)
+                if (borrowObj.ID == removeID)
                 {
-                    //DataLists.BorrowedList[i].ExemplarBorrowed.IsBorrowed = false;
-                    Models.MagazinExemplar bookBorrowObj = (Models.MagazinExemplar)DataLists.MagazineBorrowedList[i].ExemplarBorrowed;
-                    bookBorrowObj.IsBorrowed = false;
-                    //DataLists.BookBorrowedList[i].ExemplarBorrowed = bookBorrowObj;
-                    DataLists.MagazineBorrowedList.RemoveAt(i);
-                    Console.WriteLine("Erfolgreich gelöscht!");
-                    success = true;
-                    WriteAndReadFile.WriteMagazineExemplaryJson();
+                    if (borrowObj.ID == removeID && borrowObj.IsElectronic)
+                    {
+                        Models.Magazin bookBorrowObj = (Models.Magazin)borrowObj.ExemplarBorrowed;
+                        bookBorrowObj.borrowed--;
+                        DataLists.MagazineBorrowedList.Remove(borrowObj);
+                        WriteAndReadFile.WriteMagazineJson();
+                        Console.WriteLine("Erfolgreich gelöscht!");
+                        success = true;
+                    }
+                    if (borrowObj.ID == removeID && !borrowObj.IsElectronic)
+                    {
+                        Models.MagazinExemplar bookBorrowObj = (Models.MagazinExemplar)DataLists.BooksBorrowedList[i].ExemplarBorrowed;
+                        bookBorrowObj.IsBorrowed = false;
+                        DataLists.MagazineBorrowedList.Remove(borrowObj);
+                        WriteAndReadFile.WriteMagazineExemplaryJson();
+                        Console.WriteLine("Erfolgreich gelöscht!");
+                        success = true;
+                    }
+                    WriteAndReadFile.WriteMagazineBorrowJson();
                     Console.Clear();
                     Console.WriteLine("Erfolgreich gelöscht!");
                     break;
@@ -1367,4 +1378,3 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
 }
 
 //Buch löschen abfragen ob verliehen
-//buch aus borrow removen mit elektronisch --> kann man kürzer schreiben und muss noch zu magzin
