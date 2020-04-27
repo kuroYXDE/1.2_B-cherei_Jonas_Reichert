@@ -42,22 +42,24 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
 
             var bookIdExisting = false;
             foreach (var bookObj in DataLists.Books)
-            {
                 if (bookObj.ID == removeID)
                 {
+                    if (bookObj.borrowed > 0)
+                        break;
                     bookIdExisting = true;
                     var exemplaryRemoveList = new List<int>();
                     var counter = 0;
                     foreach (var exemplaryObj in DataLists.BookExemplaries)
                     {
-                        if (exemplaryObj.IsBorrowed == true)
+                        if (exemplaryObj.BookBelonging == bookObj && exemplaryObj.IsBorrowed == true)
                         {
                             Console.WriteLine("Eines der Exemplare ist noch verborgt!");
                             borrowed = true;
                             break;
                         }
-                        else
+                        else if (exemplaryObj.BookBelonging == bookObj)
                             exemplaryRemoveList.Add(counter - exemplaryRemoveList.Count);
+                        counter++;
                     }
                     if (borrowed == false)
                     {
@@ -70,19 +72,21 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                         Console.WriteLine("Buch mit dazugehörigen Exemplaren erfolgreich gelöscht.");
                         break;
                     }
+                    if (borrowed == true)
+                        break;
                 }
-            }
             if (bookIdExisting == false)
-                Console.WriteLine("Ein Buch mit dieser ID existiert nicht!");
+                Console.WriteLine("Ein Buch mit dieser ID existiert nicht oder ein E-Book ist noch verliehen!");
         }
         public void EditBook()
         {
-            var success = false;
+            var exist = false;
             var bookID = Program.IntInputFunction("Geben Sie die Buch ID ein: ");
             foreach (var obj in DataLists.Books)
             {
                 if (obj.ID == bookID)
                 {
+                    exist = true;
                     obj.Author_Publisher = Program.StringInputFunction("Geben Sie den Author ein (Leer lassen wenn keine Änerung): ", obj.Author_Publisher);
                     obj.Title = Program.StringInputFunction("Geben Sie den Titel ein (Leer lassen wenn keine Änerung): ", obj.Title);
                     obj.Pages = Program.IntInputFunction("Geben Sie die Seitenanzahl ein (Leer lassen wenn keine Änerung): ", obj.Pages);
@@ -91,29 +95,28 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                     obj.ImageLink = Program.StringInputFunction("Geben Sie den Bild-Link ein (Leer lassen wenn keine Änerung): ", obj.ImageLink);
                     obj.Link = Program.StringInputFunction("Geben Sie den Link ein (Leer lassen wenn keine Änerung): ", obj.Link);
                     obj.Year = Program.IntInputFunction("Geben Sie das Jahr ein (Leer lassen wenn keine Änerung): ", obj.Year);
-                    success = true;
                     WriteAndReadFile.WriteBookJson();
                     Console.Clear();
                     Console.WriteLine("Erfolgreich geändert!");
                     break;
                 }
             }
-            if (!success)
+            if (!exist)
                 Console.WriteLine("Die Buch ID existiert nicht!");
             Program.BorderLine();
         }
         public void DisplayBooksSimple()
         {
-            Console.WriteLine("ID | Autor | Titel | Sprache | Jahr");
+            Console.WriteLine("ID | Autor | Titel | Sprache | Jahr | Ausgeliehen");
             foreach (var obj in DataLists.Books)
-                Console.WriteLine("{0} | {1} | {2} | {3} | {4}", obj.ID, obj.Author_Publisher, obj.Title, obj.Language, obj.Year);
+                Console.WriteLine("{0} | {1} | {2} | {3} | {4} | {5}", obj.ID, obj.Author_Publisher, obj.Title, obj.Language, obj.Year, obj.borrowed);
             Program.BorderLine();
         }
         public void DisplayBooksExtended()
         {
-            Console.WriteLine("ID | Autor | Titel | Seiten | Land | Sprache | Jahr | Bild-Link | Link");
+            Console.WriteLine("ID | Autor | Titel | Seiten | Land | Sprache | Jahr | Ausgeliehen | Bild-Link | Link");
             foreach (var obj in DataLists.Books)
-                Console.WriteLine("{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}", obj.ID, obj.Author_Publisher, obj.Title, obj.Pages, obj.Country, obj.Language, obj.Year, obj.ImageLink, obj.Link);
+                Console.WriteLine("{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8} | {9}", obj.ID, obj.Author_Publisher, obj.Title, obj.Pages, obj.Country, obj.Language, obj.Year, obj.borrowed, obj.ImageLink, obj.Link);
             Program.BorderLine();
         }
         public void DisplaySpecificBook(bool lastElement)
@@ -134,11 +137,10 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 {
                     if (bookObj.ID == searchFor)
                     {
-                        Console.WriteLine("ID | Autor | Titel | Seiten | Land | Sprache | Jahr | Bild-Link | Link");
+                        Console.WriteLine("ID | Autor | Titel | Seiten | Land | Sprache | Jahr | Ausgeliehen | Bild-Link | Link");
                         Console.WriteLine(
                             "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
-                            bookObj.ID, bookObj.Author_Publisher, bookObj.Title, bookObj.Pages, bookObj.Country, bookObj.Language, bookObj.Year, bookObj.ImageLink, bookObj.Link
-                            );
+                            bookObj.ID, bookObj.Author_Publisher, bookObj.Title, bookObj.Pages, bookObj.Country, bookObj.Language, bookObj.Year, bookObj.borrowed, bookObj.ImageLink, bookObj.Link);
                     }
                 }
             }
@@ -149,11 +151,10 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 {
                     if (bookObj.Author_Publisher == searchFor)
                     {
-                        Console.WriteLine("ID | Autor | Titel | Seiten | Land | Sprache | Jahr | Bild-Link | Link");
+                        Console.WriteLine("ID | Autor | Titel | Seiten | Land | Sprache | Jahr | Ausgeliehen | Bild-Link | Link");
                         Console.WriteLine(
                             "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
-                            bookObj.ID, bookObj.Author_Publisher, bookObj.Title, bookObj.Pages, bookObj.Country, bookObj.Language, bookObj.Year, bookObj.ImageLink, bookObj.Link
-                            );
+                            bookObj.ID, bookObj.Author_Publisher, bookObj.Title, bookObj.Pages, bookObj.Country, bookObj.Language, bookObj.Year, bookObj.borrowed, bookObj.ImageLink, bookObj.Link);
                     }
                 }
             }
@@ -164,11 +165,10 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 {
                     if (bookObj.Title == searchFor)
                     {
-                        Console.WriteLine("ID | Autor | Titel | Seiten | Land | Sprache | Jahr | Bild-Link | Link");
+                        Console.WriteLine("ID | Autor | Titel | Seiten | Land | Sprache | Jahr | Ausgeliehen | Bild-Link | Link");
                         Console.WriteLine(
                             "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
-                            bookObj.ID, bookObj.Author_Publisher, bookObj.Title, bookObj.Pages, bookObj.Country, bookObj.Language, bookObj.Year, bookObj.ImageLink, bookObj.Link
-                            );
+                            bookObj.ID, bookObj.Author_Publisher, bookObj.Title, bookObj.Pages, bookObj.Country, bookObj.Language, bookObj.Year, bookObj.borrowed, bookObj.ImageLink, bookObj.Link);
                     }
                 }
             }
@@ -179,11 +179,10 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 {
                     if (bookObj.Language == searchFor)
                     {
-                        Console.WriteLine("ID | Autor | Titel | Seiten | Land | Sprache | Jahr | Bild-Link | Link");
+                        Console.WriteLine("ID | Autor | Titel | Seiten | Land | Sprache | Jahr | Ausgeliehen | Bild-Link | Link");
                         Console.WriteLine(
                             "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
-                            bookObj.ID, bookObj.Author_Publisher, bookObj.Title, bookObj.Pages, bookObj.Country, bookObj.Language, bookObj.Year, bookObj.ImageLink, bookObj.Link
-                            );
+                            bookObj.ID, bookObj.Author_Publisher, bookObj.Title, bookObj.Pages, bookObj.Country, bookObj.Language, bookObj.Year, bookObj.borrowed, bookObj.ImageLink, bookObj.Link);
                     }
                 }
             }
@@ -217,22 +216,24 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
 
             var bookIdExisting = false;
             foreach (var magazineObj in DataLists.Magazines)
-            {
                 if (magazineObj.ID == removeID)
                 {
+                    if (magazineObj.borrowed > 0)
+                        break;
                     bookIdExisting = true;
                     var exemplaryRemoveList = new List<int>();
                     var counter = 0;
                     foreach (var exemplaryObj in DataLists.MagazineExemplaries)
                     {
-                        if (exemplaryObj.IsBorrowed == true)
+                        if (exemplaryObj.MagazineBelonging == magazineObj && exemplaryObj.IsBorrowed == true)
                         {
                             Console.WriteLine("Eines der Exemplare ist noch verborgt!");
                             borrowed = true;
                             break;
                         }
-                        else
+                        else if (exemplaryObj.MagazineBelonging == magazineObj)
                             exemplaryRemoveList.Add(counter - exemplaryRemoveList.Count);
+                        counter++;
                     }
                     if (borrowed == false)
                     {
@@ -245,39 +246,40 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                         Console.WriteLine("Buch mit dazugehörigen Exemplaren erfolgreich gelöscht.");
                         break;
                     }
+                    if (borrowed == true)
+                        break;
                 }
-            }
             if (bookIdExisting == false)
-                Console.WriteLine("Ein Buch mit dieser ID existiert nicht!");
+                Console.WriteLine("Ein Buch mit dieser ID existiert nicht oder ein E-Paper ist noch verliehen!");
         }
         public void EditMagazine()
         {
-            var success = false;
+            var exist = false;
             var magazineID = Program.IntInputFunction("Geben Sie die Buch ID ein: ");
             foreach (var obj in DataLists.Magazines)
             {
                 if (obj.ID == magazineID)
                 {
+                    exist = true;
                     obj.Author_Publisher = Program.StringInputFunction("Geben Sie den Author ein (Leer lassen wenn keine Änerung): ", obj.Author_Publisher);
                     obj.Title = Program.StringInputFunction("Geben Sie den Titel ein (Leer lassen wenn keine Änerung): ", obj.Title);
                     obj.Group = Program.StringInputFunction("Geben Sie die Gruppe an (Leer lassen wenn keine Änerung): ", obj.Group);
                     obj.Topic = Program.StringInputFunction("Geben Sie die Sachgruppe an (Leer lassen wenn keine Änerung): ", obj.Topic);
-                    success = true;
                     WriteAndReadFile.WriteMagazineJson();
                     Console.Clear();
                     Console.WriteLine("Erfolgreich geändert!");
                     break;
                 }
             }
-            if (!success)
+            if (!exist)
                 Console.WriteLine("Die Magazin ID existiert nicht!");
             Program.BorderLine();
         }
         public void DisplayMagazine()
         {
-            Console.WriteLine("ID | Autor | Titel | Gruppe | Sachgruppe");
+            Console.WriteLine("ID | Autor | Titel | Gruppe | Sachgruppe | Ausgeliehen");
             foreach (var obj in DataLists.Magazines)
-                Console.WriteLine("{0} | {1} | {2} | {3} | {4}", obj.ID, obj.Author_Publisher, obj.Title, obj.Group, obj.Topic);
+                Console.WriteLine("{0} | {1} | {2} | {3} | {4} | {5}", obj.ID, obj.Author_Publisher, obj.Title, obj.Group, obj.Topic, obj.borrowed);
             Program.BorderLine();
         }
         public void DisplaySpecificMagazine(bool lastElement)
@@ -298,11 +300,9 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 {
                     if (magazineObj.ID == searchFor)
                     {
-                        Console.WriteLine("ID | Autor | Titel | Gruppe | Sachgruppe");
-                        Console.WriteLine(
-                            "{0} | {1} | {2} | {3} | {4}",
-                            magazineObj.ID, magazineObj.Author_Publisher, magazineObj.Title, magazineObj.Group, magazineObj.Topic
-                            );
+                        Console.WriteLine("ID | Autor | Titel | Gruppe | Sachgruppe | Ausgeliehen");
+                        foreach (var obj in DataLists.Magazines)
+                            Console.WriteLine("{0} | {1} | {2} | {3} | {4} | {5}", obj.ID, obj.Author_Publisher, obj.Title, obj.Group, obj.Topic, obj.borrowed);
                     }
                 }
             }
@@ -313,11 +313,9 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 {
                     if (bookObj.Author_Publisher == searchFor)
                     {
-                        Console.WriteLine("ID | Autor | Titel | Seiten | Land | Sprache | Jahr | Bild-Link | Link");
-                        Console.WriteLine(
-                            "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
-                            bookObj.ID, bookObj.Author_Publisher, bookObj.Title, bookObj.Pages, bookObj.Country, bookObj.Language, bookObj.Year, bookObj.ImageLink, bookObj.Link
-                            );
+                        Console.WriteLine("ID | Autor | Titel | Gruppe | Sachgruppe | Ausgeliehen");
+                        foreach (var obj in DataLists.Magazines)
+                            Console.WriteLine("{0} | {1} | {2} | {3} | {4} | {5}", obj.ID, obj.Author_Publisher, obj.Title, obj.Group, obj.Topic, obj.borrowed);
                     }
                 }
             }
@@ -328,11 +326,9 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 {
                     if (bookObj.Title == searchFor)
                     {
-                        Console.WriteLine("ID | Autor | Titel | Seiten | Land | Sprache | Jahr | Bild-Link | Link");
-                        Console.WriteLine(
-                            "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
-                            bookObj.ID, bookObj.Author_Publisher, bookObj.Title, bookObj.Pages, bookObj.Country, bookObj.Language, bookObj.Year, bookObj.ImageLink, bookObj.Link
-                            );
+                        Console.WriteLine("ID | Autor | Titel | Gruppe | Sachgruppe | Ausgeliehen");
+                        foreach (var obj in DataLists.Magazines)
+                            Console.WriteLine("{0} | {1} | {2} | {3} | {4} | {5}", obj.ID, obj.Author_Publisher, obj.Title, obj.Group, obj.Topic, obj.borrowed);
                     }
                 }
             }
@@ -343,11 +339,9 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 {
                     if (bookObj.Language == searchFor)
                     {
-                        Console.WriteLine("ID | Autor | Titel | Seiten | Land | Sprache | Jahr | Bild-Link | Link");
-                        Console.WriteLine(
-                            "{0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} | {8}",
-                            bookObj.ID, bookObj.Author_Publisher, bookObj.Title, bookObj.Pages, bookObj.Country, bookObj.Language, bookObj.Year, bookObj.ImageLink, bookObj.Link
-                            );
+                        Console.WriteLine("ID | Autor | Titel | Gruppe | Sachgruppe | Ausgeliehen");
+                        foreach (var obj in DataLists.Magazines)
+                            Console.WriteLine("{0} | {1} | {2} | {3} | {4} | {5}", obj.ID, obj.Author_Publisher, obj.Title, obj.Group, obj.Topic, obj.borrowed);
                     }
                 }
             }
@@ -370,7 +364,6 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             {
                 var bookID = Program.IntInputFunction("Geben Sie die ID des dazugehörigen Buches an: ");
                 foreach (var obj in DataLists.Books)
-                {
                     if (obj.ID == bookID)
                     {
                         exist = true;
@@ -378,12 +371,11 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                         DataLists.BookExemplaries.Add(e);
                         WriteAndReadFile.WriteICJson();
                         WriteAndReadFile.WriteBookExemplaryJson();
-                        Console.Clear();
+                        //Console.Clear();
                         DisplaySpecificBookExemplary(true);
                         Console.WriteLine("Erfolgreich hinzugefügt!");
                         break;
                     }
-                }
                 if (!exist)
                     Console.WriteLine("Diese BuchID existiert nicht!");
                 Program.BorderLine();
@@ -395,7 +387,6 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             var removeID = Program.IntInputFunction("Geben Sie die ID des zu löschenden Exemplars an: ");
 
             for (int i = 0; i < DataLists.BookExemplaries.Count; i++)
-            {
                 if (DataLists.BookExemplaries[i].ID == removeID)
                 {
                     if (DataLists.BookExemplaries[i].IsBorrowed == true)
@@ -410,7 +401,6 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                     Console.WriteLine("Erfolgreich gelöscht!");
                     break;
                 }
-            }
             if (!success)
                 Console.WriteLine("Das Buch mit dieser ID existiert nicht!");
             Program.BorderLine();
@@ -420,13 +410,11 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             var success = false;
             var exemplaryID = Program.IntInputFunction("Geben Sie die Exemplar ID ein: ");
             foreach (var exemplaryObj in DataLists.BookExemplaries)
-            {
                 if (exemplaryObj.ID == exemplaryID)
                 {
                     var exist = false;
                     var bookID = Program.IntInputFunction("Geben Sie die Buch ID an (leer lassen für keine Änderung): ", exemplaryObj.BookBelonging.ID);
                     foreach (var bookObj in DataLists.Books)
-                    {
                         if (bookObj.ID == bookID)
                         {
                             exemplaryObj.BookBelonging = bookObj;
@@ -437,11 +425,9 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                             Console.WriteLine("Erfolgreich geändert!");
                             break;
                         }
-                    }
                     if (!exist)
                         Console.WriteLine("Buch ID existiert nicht!");
                 }
-            }
             if (!success)
                 Console.WriteLine("Die Exdemplar ID existiert nicht!");
             Program.BorderLine();
@@ -581,7 +567,6 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             var removeID = Program.IntInputFunction("Geben Sie die ID des zu löschenden Exemplars an: ");
 
             for (int i = 0; i < DataLists.MagazineExemplaries.Count; i++)
-            {
                 if (DataLists.MagazineExemplaries[i].ID == removeID)
                 {
                     if (DataLists.MagazineExemplaries[i].IsBorrowed == true)
@@ -596,7 +581,6 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                     Console.WriteLine("Erfolgreich gelöscht!");
                     break;
                 }
-            }
             if (!success)
                 Console.WriteLine("Das Buch mit dieser ID existiert nicht!");
             Program.BorderLine();
@@ -606,13 +590,11 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             var success = false;
             var exemplaryID = Program.IntInputFunction("Geben Sie die Exemplar ID ein: ");
             foreach (var exemplaryObj in DataLists.MagazineExemplaries)
-            {
                 if (exemplaryObj.ID == exemplaryID)
                 {
                     var exist = false;
                     var magazineID = Program.IntInputFunction("Geben Sie die Buch ID an (leer lassen für keine Änderung): ", exemplaryObj.MagazineBelonging.ID);
                     foreach (var magazineObj in DataLists.Magazines)
-                    {
                         if (magazineObj.ID == magazineID)
                         {
                             exemplaryObj.MagazineBelonging = magazineObj;
@@ -623,11 +605,9 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                             Console.WriteLine("Erfolgreich geändert!");
                             break;
                         }
-                    }
                     if (!exist)
                         Console.WriteLine("Buch ID existiert nicht!");
                 }
-            }
             if (!success)
                 Console.WriteLine("Die Exdemplar ID existiert nicht!");
             Program.BorderLine();
@@ -808,16 +788,14 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                         bookBorrowObj.borrowed--;
                         DataLists.BooksBorrowedList.Remove(borrowObj);
                         WriteAndReadFile.WriteBookJson();
-                        Console.WriteLine("Erfolgreich gelöscht!");
                         success = true;
                     }
                     if (borrowObj.ID == removeID && !borrowObj.IsElectronic)
                     {
-                        Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)DataLists.BooksBorrowedList[i].ExemplarBorrowed;
+                        Models.BuchExemplar bookBorrowObj = (Models.BuchExemplar)borrowObj.ExemplarBorrowed;
                         bookBorrowObj.IsBorrowed = false;
                         DataLists.BooksBorrowedList.Remove(borrowObj);
                         WriteAndReadFile.WriteBookExemplaryJson();
-                        Console.WriteLine("Erfolgreich gelöscht!");
                         success = true;
                     }
                     WriteAndReadFile.WriteBookBorrowJson();
@@ -1054,7 +1032,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                     }
                     if (borrowObj.ID == removeID && !borrowObj.IsElectronic)
                     {
-                        Models.MagazinExemplar bookBorrowObj = (Models.MagazinExemplar)DataLists.BooksBorrowedList[i].ExemplarBorrowed;
+                        Models.MagazinExemplar bookBorrowObj = (Models.MagazinExemplar)borrowObj.ExemplarBorrowed;
                         bookBorrowObj.IsBorrowed = false;
                         DataLists.MagazineBorrowedList.Remove(borrowObj);
                         WriteAndReadFile.WriteMagazineExemplaryJson();
@@ -1376,5 +1354,3 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         #endregion
     }
 }
-
-//Buch löschen abfragen ob verliehen

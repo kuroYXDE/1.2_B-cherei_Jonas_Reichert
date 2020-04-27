@@ -11,6 +11,7 @@ namespace _1._2_Bücherei_Jonas_Reichert
             pL.ProofExistingFile();
             ProgramNavigation(pL);
         }
+
         static private void ProgramNavigation(Controller.ProgramLogic pL)
         {
             while (true)
