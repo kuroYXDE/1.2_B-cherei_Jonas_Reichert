@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.IO;
 using Newtonsoft.Json;
 
@@ -19,36 +16,20 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 DataLists.IC = JsonConvert.DeserializeObject<Models.IDBookmark>(json);
             }
         }
-        static public void ReadBookJson()
+        static public void ReadProductsJson()
         {
-            using (StreamReader r = new StreamReader("Files/books.json"))
+            using (StreamReader r = new StreamReader("Files/products.json"))
             {
                 string json = r.ReadToEnd();
-                DataLists.Books = JsonConvert.DeserializeObject<List<Models.Buch>>(json);
+                DataLists.ProductList = JsonConvert.DeserializeObject<List<Models.IProdukt>>(json);
             }
         }
-        static public void ReadMagazineJson()
+        static public void ReadPhysicalProductsJson()
         {
-            using (StreamReader r = new StreamReader("Files/magazine.json"))
+            using (StreamReader r = new StreamReader("Files/physicalProducts.json"))
             {
                 string json = r.ReadToEnd();
-                DataLists.Magazines = JsonConvert.DeserializeObject<List<Models.Magazin>>(json);
-            }
-        }
-        static public void ReadBookExemplaryJson()
-        {
-            using (StreamReader r = new StreamReader("Files/bookExemplaries.json"))
-            {
-                string json = r.ReadToEnd();
-                DataLists.BookExemplaries = JsonConvert.DeserializeObject<List<Models.BuchExemplar>>(json);
-            }
-        }
-        static public void ReadMagazineExemplaryJson()
-        {
-            using (StreamReader r = new StreamReader("Files/magazineExemplaries.json"))
-            {
-                string json = r.ReadToEnd();
-                DataLists.MagazineExemplaries = JsonConvert.DeserializeObject<List<Models.MagazinExemplar>>(json);
+                DataLists.PhysicalProductList = JsonConvert.DeserializeObject<List<Models.IpProduct>>(json);
             }
         }
         static public void ReadBookBorrowJson()
@@ -59,6 +40,25 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 DataLists.BooksBorrowedList = JsonConvert.DeserializeObject<List<Models.Ausleihe>>(json);
             }
         }
+
+        static public void ReadBooksJson()
+        {
+            using (StreamReader r = new StreamReader("C:/Users/seongbae/Documents/BBW/Programmierung/Aufgabe(2)/Buecherei/books.json"))
+            {
+                string json = r.ReadToEnd();
+                DataLists.Books = JsonConvert.DeserializeObject<List<Models.Buch>>(json);
+            }
+        }
+
+        static public void ReadMagazineJson()
+        {
+            using (StreamReader r = new StreamReader("C:/Users/seongbae/Documents/BBW/Programmierung/Aufgabe(2)/Buecherei/magazine.json"))
+            {
+                string json = r.ReadToEnd();
+                DataLists.Magazines = JsonConvert.DeserializeObject<List<Models.Magazin>>(json);
+            }
+        }
+
         static public void ReadMagazineBorrowJson()
         {
             using (StreamReader r = new StreamReader("Files/magazineBorrows.json"))
@@ -75,10 +75,10 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             string json = JsonConvert.SerializeObject(DataLists.IC);
             System.IO.File.WriteAllText("Files/IC.json", json);
         }
-        static public void WriteBookJson()
+        static public void WriteProductJson()
         {
-            string json = JsonConvert.SerializeObject(DataLists.Books.ToArray());
-            System.IO.File.WriteAllText("Files/books.json", json);
+            string json = JsonConvert.SerializeObject(DataLists.ProductList.ToArray());
+            System.IO.File.WriteAllText("Files/products.json", json);
         }
         static public void WriteMagazineJson()
         {

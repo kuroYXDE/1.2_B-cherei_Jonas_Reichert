@@ -4,12 +4,13 @@ using System.Text;
 
 namespace _1._2_Bücherei_Jonas_Reichert.Models
 {
-    interface IProdukt
+    interface IpProduct
     {
         int ID { get; set; }
-        string Author_Publisher { get; set; }
-        string Title { get; set; }
-        //int borrowed { get; set; }
+        bool IsBorrowed { get; set; }
+        IProdukt Belonging { get; set; }
         void AddId();
+        void ChangeBorrowed();
+        void AddBelonging();
     }
 }

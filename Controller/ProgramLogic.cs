@@ -2,22 +2,59 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 
 namespace _1._2_Bücherei_Jonas_Reichert.Controller
 {
     class ProgramLogic
     {
+        #region newProgram
+        void AddProduct()
+        {
+            int productType = Program.IntInputFunction("(1): Buch, (2): Magazin");
+            if (productType == 1)
+            {
+                Models.Buch b = new Models.Buch();
+                DataLists.ProductList.Add(b);
+            }
+            if (productType == 2)
+            {
+                Models.Magazin m = new Models.Magazin();
+                DataLists.ProductList.Add(m);
+            }
+        }
+        void AddPhysicalProduct()
+        {
+            int productType = Program.IntInputFunction("(1): Buch, (2): Magazin");
+            if (productType == 1)
+            {
+                Models.BuchExemplar b = new Models.BuchExemplar();
+                DataLists.PhysicalProductList.Add(b);
+            }
+            if (productType == 2)
+            {
+                Models.MagazinExemplar m = new Models.MagazinExemplar();
+                DataLists.PhysicalProductList.Add(m);
+            }
+        }
+
+        void DisplayPhysicalProducts()
+        {
+            foreach (var pObj in DataLists.PhysicalProductList)
+                Console.WriteLine(
+                    "{0}|{1}|{2}|{3}|{4}",
+                    pObj.ID, pObj.IsBorrowed, pObj.Belonging.ID, pObj.Belonging.Author_Publisher, pObj.Belonging.Title);
+        }
+        #endregion
+
+        /*
         #region Fundamental
         #region Book/Magazine
         public void AddBook()
         {
             Models.Buch b = new Models.Buch()
             {
-                ID = ++DataLists.IC.HighestBookID,
+                ID = ++DataLists.IC.HighestBookId,
                 Author_Publisher = Program.StringInputFunction("Autor:"),
                 Title = Program.StringInputFunction("Titel: "),
                 Pages = Program.IntInputFunction("Seiten: "),
@@ -130,7 +167,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             {
                 var searchFor = 0;
                 if (lastElement)
-                    searchFor = DataLists.IC.HighestBookID;
+                    searchFor = DataLists.IC.HighestBookId;
                 else
                     searchFor = Program.IntInputFunction("Nach welcher ID suchen Sie?: ");
                 foreach (var bookObj in DataLists.Books)
@@ -195,7 +232,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         {
             Models.Magazin m = new Models.Magazin()
             {
-                ID = ++DataLists.IC.HighestMagazineID,
+                ID = ++DataLists.IC.HighestMagazineId,
                 Author_Publisher = Program.StringInputFunction("Autor:"),
                 Title = Program.StringInputFunction("Titel: "),
                 Group = Program.StringInputFunction("Gruppe: "),
@@ -293,7 +330,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             {
                 var searchFor = 0;
                 if (lastElement)
-                    searchFor = DataLists.IC.HighestMagazineID;
+                    searchFor = DataLists.IC.HighestMagazineId;
                 else
                     searchFor = Program.IntInputFunction("Nach welcher ID suchen Sie?: ");
                 foreach (var magazineObj in DataLists.Magazines)
@@ -718,7 +755,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             var electronic = Program.BoolInputFunction("Wird ein Elektronisches Exemplar verliehen?: ");
             Models.Ausleihe e = new Models.Ausleihe()
             {
-                ID = ++DataLists.IC.HighestBookBorrowID,
+                ID = ++DataLists.IC.HighestBookBorrowId,
                 Customer = Program.StringInputFunction("Geben Sie die Kundendaten an: "),
                 StartBorrowDate = DateTime.Now,
                 EndBorrowDate = DateTime.Now.AddDays(30),
@@ -895,7 +932,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             {
                 var searchFor = 0;
                 if (lastBorrow)
-                    searchFor = DataLists.IC.HighestBookBorrowID;
+                    searchFor = DataLists.IC.HighestBookBorrowId;
                 else
                     searchFor = Program.IntInputFunction("Nach welcher ID suchen Sie?: ");
                 foreach (var borrowObj in DataLists.BooksBorrowedList)
@@ -957,7 +994,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             var electronic = Program.BoolInputFunction("Wird ein Elektronisches Exemplar verliehen?: ");
             Models.Ausleihe e = new Models.Ausleihe()
             {
-                ID = ++DataLists.IC.HighestMagazineBorrowID,
+                ID = ++DataLists.IC.HighestMagazineBorrowId,
                 Customer = Program.StringInputFunction("Geben Sie die Kundendaten an: "),
                 StartBorrowDate = DateTime.Now,
                 EndBorrowDate = DateTime.Now.AddDays(2),
@@ -1124,105 +1161,8 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             }
             Program.BorderLine();
         }
-        #endregion
-        #endregion
-        #region Start
-        public void ProofExistingFile()
-        {
-            if (!File.Exists("Files/IC.json"))
-            {
-                DataLists.IC = new Models.IDBookmark()
-                {
-                    HighestBookID = 0,
-                    HighestMagazineID = 0,
-                    HighestBookExemplaryID = 0,
-                    HighestMagazineExemplaryID = 0,
-                    HighestBookBorrowID = 0,
-                    HighestMagazineBorrowID = 0,
-                };
-                WriteAndReadFile.WriteICJson();
-                WriteAndReadFile.ReadBookJson();
-                WriteAndReadFile.ReadMagazineJson();
-                AddBookID();
-                CreateFirstExemplaries();
-                CreateBorrowJson();
-                WriteAndReadFile.WriteICJson();
-            }
-            else
-            {
-                WriteAndReadFile.ReadICJson();
-                WriteAndReadFile.ReadBookJson();
-                WriteAndReadFile.ReadMagazineJson();
-                WriteAndReadFile.ReadBookExemplaryJson();
-                WriteAndReadFile.ReadMagazineExemplaryJson();
-                WriteAndReadFile.ReadBookBorrowJson();
-                WriteAndReadFile.ReadMagazineBorrowJson();
-                ProofBorrowLists();
-            }
-        }
-        public void AddBookID()
-        {
-            foreach (var bookObj in DataLists.Books)
-            {
-                DataLists.IC.HighestBookID++;
-                bookObj.ID = DataLists.IC.HighestBookID;
-            }
-            WriteAndReadFile.WriteBookJson();
-        }
-        public void CreateFirstExemplaries()
-        {
-            DataLists.BookExemplaries = new List<Models.BuchExemplar>();
-            foreach (var bookObj in DataLists.Books)
-            {
-                DataLists.IC.HighestBookExemplaryID++;
-                Models.BuchExemplar e1 = new Models.BuchExemplar()
-                {
-                    ID = DataLists.IC.HighestBookExemplaryID,
-                    IsBorrowed = false,
-                    BookBelonging = bookObj,
-                };
-                DataLists.BookExemplaries.Add(e1);
-                DataLists.IC.HighestBookExemplaryID++;
-                DataLists.BookExemplaries.Add(
-                    new Models.BuchExemplar
-                    {
-                        ID = DataLists.IC.HighestBookExemplaryID,
-                        IsBorrowed = false,
-                        BookBelonging = bookObj,
-                    });
-            }
-            WriteAndReadFile.WriteBookExemplaryJson();
-            
-            DataLists.MagazineExemplaries = new List<Models.MagazinExemplar>();
-            foreach (var magazineObj in DataLists.Magazines)
-            {
-                DataLists.IC.HighestMagazineExemplaryID++;
-                Models.MagazinExemplar e1 = new Models.MagazinExemplar()
-                {
-                    ID = DataLists.IC.HighestMagazineExemplaryID,
-                    IsBorrowed = false,
-                    MagazineBelonging = magazineObj,
-                };
-                DataLists.MagazineExemplaries.Add(e1);
-                DataLists.IC.HighestMagazineExemplaryID++;
-                DataLists.MagazineExemplaries.Add(
-                    new Models.MagazinExemplar
-                    {
-                        ID = DataLists.IC.HighestMagazineExemplaryID,
-                        IsBorrowed = false,
-                        MagazineBelonging = magazineObj,
-                    });
-            }
-            WriteAndReadFile.WriteMagazineExemplaryJson();
-        }
-        public void CreateBorrowJson()
-        {
-            DataLists.BooksBorrowedList = new List<Models.Ausleihe>();
-            DataLists.MagazineBorrowedList = new List<Models.Ausleihe>();
-            WriteAndReadFile.WriteBookBorrowJson();
-            WriteAndReadFile.WriteMagazineBorrowJson();
-        }
-        public void DisplaySpecificMagazineBorrow(bool lastBorrow)
+
+            public void DisplaySpecificMagazineBorrow(bool lastBorrow)
         {
             var searchColumn = "";
             if (lastBorrow)
@@ -1233,7 +1173,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             {
                 var searchFor = 0;
                 if (lastBorrow)
-                    searchFor = DataLists.IC.HighestMagazineBorrowID;
+                    searchFor = DataLists.IC.HighestMagazineBorrowId;
                 else
                     searchFor = Program.IntInputFunction("Nach welcher ID suchen Sie?: ");
                 foreach (var borrowObj in DataLists.MagazineBorrowedList)
@@ -1289,7 +1229,101 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 Console.WriteLine("Solch eine Spalte existiert nicht!");
             Program.BorderLine();
         }
-
+        #endregion
+        #endregion*/
+        #region Start
+        public void ProofExistingFile()
+        {
+            if (!File.Exists("Files/IC.json"))
+            {
+                DataLists.IC = new Models.IDBookmark()
+                {
+                    HighestProductId = 0,
+                    HighestPhysicalProductId = 0,
+                    HighestBorrowId = 0
+                };
+                WriteAndReadFile.WriteICJson();
+                WriteAndReadFile.ReadProductsJson();
+                AddBookID();
+                CreateFirstExemplaries();
+                CreateBorrowJson();
+                WriteAndReadFile.WriteICJson();
+            }
+            else
+            {
+                WriteAndReadFile.ReadICJson();
+                //WriteAndReadFile.ReadBookJson();
+                WriteAndReadFile.ReadMagazineJson();
+                //WriteAndReadFile.ReadBookExemplaryJson();
+                //WriteAndReadFile.ReadMagazineExemplaryJson();
+                //WriteAndReadFile.ReadBookBorrowJson();
+                WriteAndReadFile.ReadMagazineBorrowJson();
+                ProofBorrowLists();
+            }
+        }
+        public void AddBookID()
+        {
+            foreach (var bookObj in DataLists.Books)
+            {
+                //DataLists.IC.HighestBookId++;
+                //bookObj.ID = DataLists.IC.HighestBookId;
+            }
+            //WriteAndReadFile.WriteBookJson();
+        }
+        public void CreateFirstExemplaries()
+        {
+            DataLists.BookExemplaries = new List<Models.BuchExemplar>();
+            foreach (var bookObj in DataLists.Books)
+            {
+                //DataLists.IC.HighestBookExemplaryID++;
+                Models.BuchExemplar e1 = new Models.BuchExemplar()
+                {
+                    //ID = DataLists.IC.HighestBookExemplaryID,
+                    IsBorrowed = false,
+                    //BookBelonging = bookObj,
+                };
+                DataLists.BookExemplaries.Add(e1);
+                //DataLists.IC.HighestBookExemplaryID++;
+                DataLists.BookExemplaries.Add(
+                    new Models.BuchExemplar
+                    {
+                        //ID = DataLists.IC.HighestBookExemplaryID,
+                        IsBorrowed = false,
+                        //BookBelonging = bookObj,
+                    });
+            }
+            WriteAndReadFile.WriteBookExemplaryJson();
+            
+            DataLists.MagazineExemplaries = new List<Models.MagazinExemplar>();
+            foreach (var magazineObj in DataLists.Magazines)
+            {
+                //DataLists.IC.HighestMagazineExemplaryID++;
+                Models.MagazinExemplar e1 = new Models.MagazinExemplar()
+                {
+                    //ID = DataLists.IC.HighestMagazineExemplaryID,
+                    IsBorrowed = false,
+                    //MagazineBelonging = magazineObj,
+                };
+                DataLists.MagazineExemplaries.Add(e1);
+                //DataLists.IC.HighestMagazineExemplaryID++;
+                DataLists.MagazineExemplaries.Add(
+                    new Models.MagazinExemplar
+                    {
+                        //ID = DataLists.IC.HighestMagazineExemplaryID,
+                        IsBorrowed = false,
+                        //MagazineBelonging = magazineObj,
+                    });
+            }
+            WriteAndReadFile.WriteMagazineExemplaryJson();
+        }
+        public void CreateBorrowJson()
+        {
+            DataLists.BooksBorrowedList = new List<Models.Ausleihe>();
+            DataLists.MagazineBorrowedList = new List<Models.Ausleihe>();
+            WriteAndReadFile.WriteBookBorrowJson();
+            WriteAndReadFile.WriteMagazineBorrowJson();
+        }
+        
         private void ProofBorrowLists()
         {
             foreach (var obj in DataLists.BooksBorrowedList)

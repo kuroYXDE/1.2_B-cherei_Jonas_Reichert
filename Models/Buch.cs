@@ -15,6 +15,10 @@ namespace _1._2_Bücherei_Jonas_Reichert.Models
         public string ImageLink { get; set; }
         public string Link { get; set; }
         public int Year { get; set; }
-        public int borrowed { get; set; }
+        //public int borrowed { get; set; }
+        public void AddId()
+        {
+            ID = ++Controller.DataLists.IC.HighestProductId;
+        }
     }
 }
