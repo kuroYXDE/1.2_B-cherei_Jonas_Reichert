@@ -4,12 +4,12 @@ using System.Text;
 
 namespace _1._2_Bücherei_Jonas_Reichert.Models
 {
-    class BuchExemplar : IpProduct
+    class PBookCopy : IpProduct
     {
         public int ID { get; set; }
         public bool IsBorrowed { get; set; }
         public IProdukt Belonging { get; set; }
-        public BuchExemplar()
+        public PBookCopy()
         {
             AddId();
             IsBorrowed = false;
@@ -29,10 +29,10 @@ namespace _1._2_Bücherei_Jonas_Reichert.Models
             while (!exist)
             {
                 var bookId = Program.IntInputFunction("Geben Sie die ID des dazugehörigen Buches an: ");
-                foreach (var bObj in Controller.DataLists.Books)
-                    if (bObj.ID == bookId)
+                foreach (var Obj in Controller.DataLists.ProductList)
+                    if (Obj.ID == bookId)
                     {
-                        Belonging = bObj;
+                        Belonging = Obj;
                         exist = true;
                     }
                 if (!exist)

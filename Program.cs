@@ -7,43 +7,14 @@ namespace _1._2_Bücherei_Jonas_Reichert
     {
         static void Main(string[] args)
         {
-            Controller.WriteAndReadFile.ReadBooksJson();
-            Controller.WriteAndReadFile.ReadMagazineJson();
-            var counter = 0;
-            foreach (var item in Controller.DataLists.Books)
-            {
-                item.ID = ++counter;
-                Models.Buch b = new Models.Buch()
-                {
-                    ID = item.ID,
-                    Author_Publisher = item.Author_Publisher,
-                    Title = item.Title,
-                    Pages = item.Pages,
-                    Country = item.Country,
-                    Language = item.Language,
-                    ImageLink = item.ImageLink,
-                    Link = item.Link,
-                    Year = item.Year,
-                };
-                Controller.DataLists.ProductList.Add(b);
-            }
-            foreach (var item in Controller.DataLists.Magazines)
-            {
-                item.ID = ++counter;
-                Controller.DataLists.ProductList.Add(item);
-            }
-            Controller.WriteAndReadFile.WriteProductJson();
-
-            Console.WriteLine("Finish");
-
-            //Controller.ProgramLogic pL = new Controller.ProgramLogic();
-            //pL.ProofExistingFile();
-            //ProgramNavigation(pL);
+            Controller.ProgramLogic pL = new Controller.ProgramLogic();
+            pL.ProofExistingFile();
+            ProgramNavigation(pL);
         }
 
         static private void ProgramNavigation(Controller.ProgramLogic pL)
         {
-            /*while (true)
+            while (true)
             {
                 var input = IntInputFunction(
                 "_______________________________\n" +
@@ -175,8 +146,8 @@ namespace _1._2_Bücherei_Jonas_Reichert
                     default:
                         Console.WriteLine("Geben Sie einen gültigen Wert ein!");
                         break;
-                }*/
-            //}
+                }
+            }
         }
         #region Inputs
         static public string StringInputFunction(string message)
@@ -240,6 +211,26 @@ namespace _1._2_Bücherei_Jonas_Reichert
             return input;
         }
         #endregion
+        static private void IWillHopefullyNeverUseYouAgain()
+        {
+            Controller.DataLists.ProductList = new List<Models.IProdukt>();
+            Controller.WriteAndReadFile.ReadBooksJson();
+            Controller.WriteAndReadFile.ReadMagazineJson();
+            var counter = 0;
+            foreach (var item in Controller.DataLists.Books)
+            {
+                item.ID = ++counter;
+                Controller.DataLists.ProductList.Add(item);
+            }
+            foreach (var item in Controller.DataLists.Magazines)
+            {
+                item.ID = ++counter;
+                Controller.DataLists.ProductList.Add(item);
+            }
+            Controller.WriteAndReadFile.WriteProductJson();
+
+            Console.WriteLine("Finish");
+        }
         static private void ShowHelp()
         {
             Console.WriteLine("Some help!");

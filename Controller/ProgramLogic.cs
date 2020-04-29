@@ -8,6 +8,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
 {
     class ProgramLogic
     {
+        //Wenn EBook nur 2 Tage ausleihen
         #region newProgram
         void AddProduct()
         {
@@ -22,25 +23,79 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 Models.Magazin m = new Models.Magazin();
                 DataLists.ProductList.Add(m);
             }
+            else
+                Console.WriteLine("Ungültige eingabe!");
+            WriteAndReadFile.WriteProductJson();
         }
         void AddPhysicalProduct()
         {
             int productType = Program.IntInputFunction("(1): Buch, (2): Magazin");
             if (productType == 1)
             {
-                Models.BuchExemplar b = new Models.BuchExemplar();
+                Models.PBookCopy b = new Models.PBookCopy();
                 DataLists.PhysicalProductList.Add(b);
             }
             if (productType == 2)
             {
-                Models.MagazinExemplar m = new Models.MagazinExemplar();
+                Models.PMagazineCopy m = new Models.PMagazineCopy();
                 DataLists.PhysicalProductList.Add(m);
             }
+            else
+                Console.WriteLine("Ungültige eingabe!");
+            WriteAndReadFile.WritePhysicalProductsJson();
         }
-
+        void AddElectronicalProduct()
+        {
+            var productType = Program.IntInputFunction("(1): Buch, (2): Magazin");
+            if (productType == 1)
+            {
+                Models.EBookCopy b = new Models.EBookCopy();
+                DataLists.ElectronicalProductList.Add(b);
+            }
+            if (productType == 2)
+            {
+                Models.EMagazineCopy m = new Models.EMagazineCopy();
+                DataLists.ElectronicalProductList.Add(m);
+            }
+            else
+                Console.WriteLine("Ungültige eingabe!");
+            WriteAndReadFile.WriteElectronicalProductsJson();
+        }
+        void AddBorrowProduct()
+        {
+            var productType = Program.IntInputFunction("(1): Physisch, (2): Elektronisch");
+            var pId = Program.IntInputFunction("Geben Sie die ID des Prduktes an: ")
+            if (productType == 1)
+            {
+                foreach (var obj in DataLists.PhysicalProductList)
+                {
+                    if (obj.ID == pId)
+                    {
+                        DataLists.BorrowProductList.Add(
+                            new Models.Borrow() { CopyBorrowed = obj});
+                        if (obj.GetType() == typeof(Models.Buch))
+                            DataLists.BorrowProductList[DataLists.BorrowProductList.Count - 1].SetBorrowDate(1);
+                    }
+                }
+            }
+        }
+        void DisplayProducts()
+        {
+            foreach (var pObj in DataLists.ProductList)
+                Console.WriteLine(
+                    "{0}|{1}|{2}",
+                    pObj.ID, pObj.Author_Publisher, pObj.Title);
+        }
         void DisplayPhysicalProducts()
         {
             foreach (var pObj in DataLists.PhysicalProductList)
+                Console.WriteLine(
+                    "{0}|{1}|{2}|{3}|{4}",
+                    pObj.ID, pObj.IsBorrowed, pObj.Belonging.ID, pObj.Belonging.Author_Publisher, pObj.Belonging.Title);
+        }
+        void DisplayElectronicalProducts()
+        {
+            foreach (var pObj in DataLists.ElectronicalProductList)
                 Console.WriteLine(
                     "{0}|{1}|{2}|{3}|{4}",
                     pObj.ID, pObj.IsBorrowed, pObj.Belonging.ID, pObj.Belonging.Author_Publisher, pObj.Belonging.Title);
@@ -1244,7 +1299,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 };
                 WriteAndReadFile.WriteICJson();
                 WriteAndReadFile.ReadProductsJson();
-                AddBookID();
+                //AddBookID();
                 CreateFirstExemplaries();
                 CreateBorrowJson();
                 WriteAndReadFile.WriteICJson();
@@ -1252,13 +1307,11 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             else
             {
                 WriteAndReadFile.ReadICJson();
-                //WriteAndReadFile.ReadBookJson();
-                WriteAndReadFile.ReadMagazineJson();
-                //WriteAndReadFile.ReadBookExemplaryJson();
-                //WriteAndReadFile.ReadMagazineExemplaryJson();
-                //WriteAndReadFile.ReadBookBorrowJson();
-                WriteAndReadFile.ReadMagazineBorrowJson();
-                ProofBorrowLists();
+                WriteAndReadFile.ReadProductsJson();
+                WriteAndReadFile.ReadPhysicalProductsJson();
+                WriteAndReadFile.ReadElectronicalProductsJson();
+                WriteAndReadFile.ReadBorrowJson();
+                //ProofBorrowLists();
             }
         }
         public void AddBookID()
@@ -1272,11 +1325,23 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         }
         public void CreateFirstExemplaries()
         {
-            DataLists.BookExemplaries = new List<Models.BuchExemplar>();
+            DataLists.PhysicalProductList = new List<Models.IpProduct>();
+            foreach (var pObj in DataLists.ProductList)
+            {
+                Models.Buch b = new Models.Buch();
+                if (b.GetType() == typeof(Models.Buch))
+                    DataLists.PhysicalProductList.Add(
+                        new Models.PBookCopy() { Belonging = pObj});
+                if (b.GetType() == typeof(Models.Magazin))
+                    DataLists.PhysicalProductList.Add(
+                        new Models.PMagazineCopy() { Belonging = pObj });
+            }
+
+            DataLists.BookExemplaries = new List<Models.PBookCopy>();
             foreach (var bookObj in DataLists.Books)
             {
                 //DataLists.IC.HighestBookExemplaryID++;
-                Models.BuchExemplar e1 = new Models.BuchExemplar()
+                Models.PBookCopy e1 = new Models.PBookCopy()
                 {
                     //ID = DataLists.IC.HighestBookExemplaryID,
                     IsBorrowed = false,
@@ -1285,7 +1350,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 DataLists.BookExemplaries.Add(e1);
                 //DataLists.IC.HighestBookExemplaryID++;
                 DataLists.BookExemplaries.Add(
-                    new Models.BuchExemplar
+                    new Models.PBookCopy
                     {
                         //ID = DataLists.IC.HighestBookExemplaryID,
                         IsBorrowed = false,
@@ -1294,11 +1359,11 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             }
             WriteAndReadFile.WriteBookExemplaryJson();
             
-            DataLists.MagazineExemplaries = new List<Models.MagazinExemplar>();
+            DataLists.MagazineExemplaries = new List<Models.PMagazineCopy>();
             foreach (var magazineObj in DataLists.Magazines)
             {
                 //DataLists.IC.HighestMagazineExemplaryID++;
-                Models.MagazinExemplar e1 = new Models.MagazinExemplar()
+                Models.PMagazineCopy e1 = new Models.PMagazineCopy()
                 {
                     //ID = DataLists.IC.HighestMagazineExemplaryID,
                     IsBorrowed = false,
@@ -1307,7 +1372,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 DataLists.MagazineExemplaries.Add(e1);
                 //DataLists.IC.HighestMagazineExemplaryID++;
                 DataLists.MagazineExemplaries.Add(
-                    new Models.MagazinExemplar
+                    new Models.PMagazineCopy
                     {
                         //ID = DataLists.IC.HighestMagazineExemplaryID,
                         IsBorrowed = false,
@@ -1318,13 +1383,11 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         }
         public void CreateBorrowJson()
         {
-            DataLists.BooksBorrowedList = new List<Models.Ausleihe>();
-            DataLists.MagazineBorrowedList = new List<Models.Ausleihe>();
-            WriteAndReadFile.WriteBookBorrowJson();
-            WriteAndReadFile.WriteMagazineBorrowJson();
+            DataLists.BorrowProductList = new List<Models.IBorrow>();
+            WriteAndReadFile.WriteBorrowJson();
         }
         
-        private void ProofBorrowLists()
+        /*private void ProofBorrowLists()
         {
             foreach (var obj in DataLists.BooksBorrowedList)
             {
@@ -1344,7 +1407,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 if (obj.IsElectronic == false)
                 {
                     JObject o = JObject.Parse(obj.ExemplarBorrowed.ToString());
-                    Models.BuchExemplar b = o.ToObject<Models.BuchExemplar>();
+                    Models.PBookCopy b = o.ToObject<Models.PBookCopy>();
                     foreach (var dataObj in DataLists.BookExemplaries)
                     {
                         if (b.ID == dataObj.ID)
@@ -1373,7 +1436,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 if (obj.IsElectronic == false)
                 {
                     JObject o = JObject.Parse(obj.ExemplarBorrowed.ToString());
-                    Models.MagazinExemplar m = o.ToObject<Models.MagazinExemplar>();
+                    Models.PMagazineCopy m = o.ToObject<Models.PMagazineCopy>();
                     foreach (var dataObj in DataLists.MagazineExemplaries)
                     {
                         if (m.ID == dataObj.ID)
@@ -1384,7 +1447,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                     }
                 }
             }
-        }
+        }*/
         #endregion
     }
 }

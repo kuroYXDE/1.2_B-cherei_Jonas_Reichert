@@ -8,6 +8,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Models
     {
         public int HighestProductId { get; set; }
         public int HighestPhysicalProductId { get; set; }
+        public int HighestElectronicalProductId { get; set; }
         public int HighestBorrowId { get; set; }
     }
 }

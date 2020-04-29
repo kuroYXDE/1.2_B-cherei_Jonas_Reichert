@@ -4,12 +4,13 @@ using System.Text;
 
 namespace _1._2_Bücherei_Jonas_Reichert.Models
 {
-    class MagazinExemplar : IpProduct
+    class EBookCopy : IeProduct
     {
         public int ID { get; set; }
         public bool IsBorrowed { get; set; }
+        public string Link { get; set; }
         public IProdukt Belonging { get; set; }
-        public MagazinExemplar()
+        public EBookCopy()
         {
             AddId();
             IsBorrowed = false;
@@ -17,7 +18,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Models
 
         public void AddId()
         {
-            ID = ++Controller.DataLists.IC.HighestPhysicalProductId;
+            ID = ++Controller.DataLists.IC.HighestElectronicalProductId;
         }
         public void ChangeBorrowed()
         {
@@ -28,15 +29,15 @@ namespace _1._2_Bücherei_Jonas_Reichert.Models
             var exist = false;
             while (!exist)
             {
-                var magazineId = Program.IntInputFunction("Geben Sie die ID des dazugehörigen Magazines an: ");
-                foreach (var mObj in Controller.DataLists.Magazines)
-                    if (mObj.ID == magazineId)
+                var bookId = Program.IntInputFunction("Geben Sie die ID des dazugehörigen Buches an: ");
+                foreach (var Obj in Controller.DataLists.ProductList)
+                    if (Obj.ID == bookId)
                     {
-                        Belonging = mObj;
+                        Belonging = Obj;
                         exist = true;
                     }
                 if (!exist)
-                    Console.WriteLine("Magazin existiert nicht!");
+                    Console.WriteLine("Buch existiert nicht!");
             }
         }
     }
