@@ -80,7 +80,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         #endregion
 
         #region Hopefully Never Use Again
-        static public void ReadBooksJson()
+        /*static public void ReadBooksJson()
         {
             using (StreamReader r = new StreamReader("C:/Users/seongbae/Documents/BBW/Programmierung/Aufgabe(2)/Buecherei/books.json"))
             {
@@ -96,7 +96,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 string json = r.ReadToEnd();
                 DataLists.Magazines = JsonConvert.DeserializeObject<List<Models.Magazin>>(json);
             }
-        }
+        }*/
         #endregion
     }
 }

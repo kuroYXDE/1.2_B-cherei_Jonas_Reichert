@@ -10,7 +10,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
     {
         //Wenn EBook nur 2 Tage ausleihen
         #region newProgram
-        void AddProduct()
+        public void AddProduct()
         {
             int productType = Program.IntInputFunction("(1): Buch, (2): Magazin");
             if (productType == 1)
@@ -27,7 +27,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 Console.WriteLine("Ungültige eingabe!");
             WriteAndReadFile.WriteProductJson();
         }
-        void AddPhysicalProduct()
+        public void AddPhysicalProduct()
         {
             int productType = Program.IntInputFunction("(1): Buch, (2): Magazin");
             if (productType == 1)
@@ -44,7 +44,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 Console.WriteLine("Ungültige eingabe!");
             WriteAndReadFile.WritePhysicalProductsJson();
         }
-        void AddElectronicalProduct()
+        public void AddElectronicalProduct()
         {
             var productType = Program.IntInputFunction("(1): Buch, (2): Magazin");
             if (productType == 1)
@@ -61,44 +61,86 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 Console.WriteLine("Ungültige eingabe!");
             WriteAndReadFile.WriteElectronicalProductsJson();
         }
-        void AddBorrowProduct()
+        public void AddBorrowProduct()
         {
             var productType = Program.IntInputFunction("(1): Physisch, (2): Elektronisch");
-            var pId = Program.IntInputFunction("Geben Sie die ID des Prduktes an: ")
+            var pId = Program.IntInputFunction("Geben Sie die ID des Prduktes an: ");
+            var exist = false;
             if (productType == 1)
             {
                 foreach (var obj in DataLists.PhysicalProductList)
+                    if (obj.ID == pId)
+                    {
+                        exist = true;
+                        DataLists.BorrowProductList.Add(new Models.Borrow() { CopyBorrowed = obj});
+                        if (obj.GetType() == typeof(Models.PBookCopy))
+                            DataLists.BorrowProductList[DataLists.BorrowProductList.Count - 1].SetBorrowDate(30);
+                        if (obj.GetType() == typeof(Models.PMagazineCopy))
+                            DataLists.BorrowProductList[DataLists.BorrowProductList.Count - 1].SetBorrowDate(2);
+                        break;
+                    }
+            }
+            if (productType == 2)
+            {
+                foreach (var obj in DataLists.ElectronicalProductList)
                 {
                     if (obj.ID == pId)
                     {
-                        DataLists.BorrowProductList.Add(
-                            new Models.Borrow() { CopyBorrowed = obj});
-                        if (obj.GetType() == typeof(Models.Buch))
-                            DataLists.BorrowProductList[DataLists.BorrowProductList.Count - 1].SetBorrowDate(1);
+                        exist = true;
+                        DataLists.BorrowProductList.Add(new Models.Borrow() { CopyBorrowed = obj });
+                        if (obj.GetType() == typeof(Models.EBookCopy))
+                            DataLists.BorrowProductList[DataLists.BorrowProductList.Count - 1].SetBorrowDate(30);
+                        if (obj.GetType() == typeof(Models.EMagazineCopy))
+                            DataLists.BorrowProductList[DataLists.BorrowProductList.Count - 1].SetBorrowDate(2);
+                        break;
                     }
                 }
             }
+            else
+                Console.WriteLine("Eingabe ungültig!");
+            if (!exist)
+                Console.WriteLine("Produkt existiert nicht!");
         }
-        void DisplayProducts()
+        public void DisplayProducts()
         {
             foreach (var pObj in DataLists.ProductList)
                 Console.WriteLine(
                     "{0}|{1}|{2}",
                     pObj.ID, pObj.Author_Publisher, pObj.Title);
         }
-        void DisplayPhysicalProducts()
+        public void DisplayPhysicalProducts()
         {
             foreach (var pObj in DataLists.PhysicalProductList)
                 Console.WriteLine(
                     "{0}|{1}|{2}|{3}|{4}",
                     pObj.ID, pObj.IsBorrowed, pObj.Belonging.ID, pObj.Belonging.Author_Publisher, pObj.Belonging.Title);
         }
-        void DisplayElectronicalProducts()
+        public void DisplayElectronicalProducts()
         {
             foreach (var pObj in DataLists.ElectronicalProductList)
                 Console.WriteLine(
                     "{0}|{1}|{2}|{3}|{4}",
                     pObj.ID, pObj.IsBorrowed, pObj.Belonging.ID, pObj.Belonging.Author_Publisher, pObj.Belonging.Title);
+        }
+        public void DisplayBorrowedProducts()
+        {
+            foreach (var pObj in DataLists.BorrowProductList)
+            {
+                if (pObj.CopyBorrowed.GetType() == typeof(Models.IpProduct))
+                {
+                    var pProduct = (Models.IpProduct)pObj.CopyBorrowed;
+                    Console.WriteLine(
+                    "{0}|{1}|{2}|{3}|{4}",
+                    pObj.ID, pObj.Customer, pObj.StartBorrowDate, pObj.EndBorrowDate, pProduct.ID, pProduct.Belonging.ID, pProduct.Belonging.Author_Publisher, pProduct.Belonging.Title);
+                }
+                if (pObj.CopyBorrowed.GetType() == typeof(Models.IeProduct))
+                {
+                    var eProduct = (Models.IpProduct)pObj.CopyBorrowed;
+                    Console.WriteLine(
+                    "{0}|{1}|{2}|{3}|{4}",
+                    pObj.ID, pObj.Customer, pObj.StartBorrowDate, pObj.EndBorrowDate, eProduct.ID, eProduct.Belonging.ID, eProduct.Belonging.Author_Publisher, eProduct.Belonging.Title);
+                }
+            }
         }
         #endregion
 
@@ -1314,7 +1356,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 //ProofBorrowLists();
             }
         }
-        public void AddBookID()
+        /*public void AddBookID()
         {
             foreach (var bookObj in DataLists.Books)
             {
@@ -1322,7 +1364,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 //bookObj.ID = DataLists.IC.HighestBookId;
             }
             //WriteAndReadFile.WriteBookJson();
-        }
+        }*/
         public void CreateFirstExemplaries()
         {
             DataLists.PhysicalProductList = new List<Models.IpProduct>();
@@ -1330,14 +1372,19 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             {
                 Models.Buch b = new Models.Buch();
                 if (b.GetType() == typeof(Models.Buch))
-                    DataLists.PhysicalProductList.Add(
-                        new Models.PBookCopy() { Belonging = pObj});
+                {
+                    DataLists.PhysicalProductList.Add(new Models.PBookCopy() { Belonging = pObj });
+                    DataLists.PhysicalProductList.Add(new Models.PBookCopy() { Belonging = pObj });
+                }
                 if (b.GetType() == typeof(Models.Magazin))
-                    DataLists.PhysicalProductList.Add(
-                        new Models.PMagazineCopy() { Belonging = pObj });
+                {
+                    DataLists.PhysicalProductList.Add(new Models.PMagazineCopy() { Belonging = pObj });
+                    DataLists.PhysicalProductList.Add(new Models.PMagazineCopy() { Belonging = pObj });
+                }
             }
+            WriteAndReadFile.WritePhysicalProductsJson();
 
-            DataLists.BookExemplaries = new List<Models.PBookCopy>();
+            /*DataLists.BookExemplaries = new List<Models.PBookCopy>();
             foreach (var bookObj in DataLists.Books)
             {
                 //DataLists.IC.HighestBookExemplaryID++;
@@ -1379,7 +1426,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                         //MagazineBelonging = magazineObj,
                     });
             }
-            WriteAndReadFile.WriteMagazineExemplaryJson();
+            WriteAndReadFile.WriteMagazineExemplaryJson();*/
         }
         public void CreateBorrowJson()
         {

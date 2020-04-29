@@ -24,13 +24,10 @@ namespace _1._2_Bücherei_Jonas_Reichert.Models
         {
             Customer = Program.StringInputFunction("Kundenname: ");
         }
-        public void SetBorrowDate(int pType)
+        public void SetBorrowDate(int days)
         {
             StartBorrowDate = DateTime.Now;
-            if (pType == 1)
-                EndBorrowDate = StartBorrowDate.AddDays(30);
-            if (pType == 2)
-                EndBorrowDate = StartBorrowDate.AddDays(2);
+            EndBorrowDate = StartBorrowDate.AddDays(days);
         }
         public void AddBelonging(int type)
         {

@@ -18,17 +18,17 @@ namespace _1._2_Bücherei_Jonas_Reichert
             {
                 var input = IntInputFunction(
                 "_______________________________\n" +
-                "0: Wenig Informationen         |\n" +
-                "1: Alle Informationen          |\n" +
+                "0: Anzeigen                    |\n" +
+                "1: Hinzufügen                  |\n" +
                 "2: Spezielles Objekt anzeigen  |\n" +
                 "4: Hinzufügen                  |\n" +
                 "5: Bearbeiten                  |\n" +
                 "6: Entfernen                   |\n" +
                 "-------------------------------|\n" +
-                "1: Buch                        |\n" +
-                "2: Buch Exemplar               |\n" +
-                "3: Buch Ausleihe               |\n" +
-                "4: Magazin                     |\n" +
+                "0: Produkte                    |\n" +
+                "1: Physische Produkte          |\n" +
+                "2: Elektronische Produkte      |\n" +
+                "3: Ausgeborgtes                |\n" +
                 "5: Magazin Exemplar            |\n" +
                 "6: Magazin Ausleihe            |\n" +
                 "-------------------------------|\n" +
@@ -37,31 +37,31 @@ namespace _1._2_Bücherei_Jonas_Reichert
                 "_______________________________|");
                 switch (input)
                 {
+                    case 00:
+                        pL.DisplayProducts();
+                        break;
                     case 01:
-                        pL.DisplayBooksSimple();
+                        pL.DisplayPhysicalProducts();
+                        break;
+                    case 02:
+                        pL.DisplayElectronicalProducts();
+                        break;
+                    case 03:
+                        pL.DisplayBorrowedProducts();
+                        break;
+                    case 10:
+                        pL.AddProduct();
                         break;
                     case 11:
-                        pL.DisplayBooksExtended();
+                        pL.AddPhysicalProduct();
                         break;
                     case 12:
-                        pL.DisplayBookExemplaries();
+                        pL.AddElectronicalProduct();
                         break;
                     case 13:
-                        pL.DisplayBooksBorrowed();
+                        pL.AddBorrowProduct();
                         break;
-                    case 14:
-                        pL.DisplayMagazine();
-                        break;
-                    case 15:
-                        pL.DisplayMagazineExemplaries();
-                        break;
-                    case 16:
-                        pL.DisplayMagazinesBorrowed();
-                        break;
-                    case 21:
-                        pL.DisplaySpecificBook(false);
-                        break;
-                    case 22:
+                    /*case 14:
                         pL.DisplaySpecificBookExemplary(false);
                         break;
                     case 23:
@@ -129,18 +129,16 @@ namespace _1._2_Bücherei_Jonas_Reichert
                         break;
                     case 66:
                         pL.RemoveMagazineBorrow();
-                        break;
-                    case 000:
+                        break;*/
+                    case 999:
                         ShowHelp();
                         break;
                     case 666:
                         Controller.WriteAndReadFile.WriteICJson();
-                        Controller.WriteAndReadFile.WriteBookJson();
-                        Controller.WriteAndReadFile.WriteBookExemplaryJson();
-                        Controller.WriteAndReadFile.WriteBookBorrowJson();
-                        Controller.WriteAndReadFile.WriteMagazineJson();
-                        Controller.WriteAndReadFile.WriteMagazineExemplaryJson();
-                        Controller.WriteAndReadFile.WriteMagazineBorrowJson();
+                        Controller.WriteAndReadFile.WriteProductJson();
+                        Controller.WriteAndReadFile.WritePhysicalProductsJson();
+                        Controller.WriteAndReadFile.WriteElectronicalProductsJson();
+                        Controller.WriteAndReadFile.WriteBorrowJson();
                         Environment.Exit(1);
                         break;
                     default:
@@ -211,7 +209,7 @@ namespace _1._2_Bücherei_Jonas_Reichert
             return input;
         }
         #endregion
-        static private void IWillHopefullyNeverUseYouAgain()
+        /*static private void IWillHopefullyNeverUseYouAgain()
         {
             Controller.DataLists.ProductList = new List<Models.IProdukt>();
             Controller.WriteAndReadFile.ReadBooksJson();
@@ -230,7 +228,7 @@ namespace _1._2_Bücherei_Jonas_Reichert
             Controller.WriteAndReadFile.WriteProductJson();
 
             Console.WriteLine("Finish");
-        }
+        }*/
         static private void ShowHelp()
         {
             Console.WriteLine("Some help!");
