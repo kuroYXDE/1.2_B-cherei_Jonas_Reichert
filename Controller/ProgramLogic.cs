@@ -28,7 +28,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
             foreach (var pObj in DataLists.ElectronicalProductList)
                 Console.WriteLine(
                     "{0}|{1}|{2}|{3}|{4}",
-                    pObj.ID, pObj.IsBorrowed, pObj.Belonging.ID, pObj.Belonging.Author_Publisher, pObj.Belonging.Title);
+                    pObj.ID, pObj.Belonging.ID, pObj.Belonging.Author_Publisher, pObj.Belonging.Title);
         }
         public void DisplayBorrowedProducts()
         {
@@ -88,25 +88,6 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 Console.WriteLine("Ungültige eingabe!");
             WriteAndReadFile.WritePhysicalProductsJson();
         }
-        public void AddElectronicalProduct()
-        {
-            var productType = Program.IntInputFunction("(1): Buch, (2): Magazin");
-            if (productType == 1)
-            {
-                Models.EBookCopy b = new Models.EBookCopy();
-                b.AddId(); b.IsBorrowed = false; b.AddBelonging();
-                DataLists.ElectronicalProductList.Add(b);
-            }
-            if (productType == 2)
-            {
-                Models.EMagazineCopy m = new Models.EMagazineCopy();
-                m.AddId(); m.IsBorrowed = false; m.AddBelonging();
-                DataLists.ElectronicalProductList.Add(m);
-            }
-            else
-                Console.WriteLine("Ungültige eingabe!");
-            WriteAndReadFile.WriteElectronicalProductsJson();
-        }
         public void AddBorrowProduct()
         {
             var productType = Program.IntInputFunction("(1): Physisch, (2): Elektronisch");
@@ -134,17 +115,27 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 var type = Program.IntInputFunction("(1): Buch, (2): Magazin");
                 if (type == 1)
                 {
-                    Models.EBookCopy newObj = new Models.EBookCopy();
-                    newObj.AddId();
-                    newObj.CreateLink();
-                    newObj.AddBelonging();
+                    Models.EBookCopy copyOpj = new Models.EBookCopy();
+                    copyOpj.AddId();
+                    copyOpj.CreateLink();
+                    copyOpj.AddBelonging();
+                    DataLists.ElectronicalProductList.Add(copyOpj);
+                    Models.Borrow newObj = new Models.Borrow();
+                    newObj.AddId(); newObj.SetCustomer(); newObj.CopyBorrowed = copyOpj;
+                    newObj.SetBorrowDate(30);
+                    DataLists.BorrowProductList.Add(newObj);
                 }
                 else if (type == 2)
                 {
-                    Models.EMagazineCopy newObj = new Models.EMagazineCopy();
-                    newObj.AddId();
-                    newObj.CreateLink();
-                    newObj.AddBelonging();
+                    Models.EMagazineCopy copyOpj = new Models.EMagazineCopy();
+                    copyOpj.AddId();
+                    copyOpj.CreateLink();
+                    copyOpj.AddBelonging();
+                    DataLists.ElectronicalProductList.Add(copyOpj);
+                    Models.Borrow newObj = new Models.Borrow();
+                    newObj.AddId(); newObj.SetCustomer(); newObj.CopyBorrowed = copyOpj;
+                    newObj.SetBorrowDate(2);
+                    DataLists.BorrowProductList.Add(newObj);
                 }
                 else
                     Console.WriteLine("Kein gültiger Wert!");
