@@ -9,11 +9,6 @@ namespace _1._2_Bücherei_Jonas_Reichert.Models
         public int ID { get; set; }
         public bool IsBorrowed { get; set; }
         public IProdukt Belonging { get; set; }
-        public PMagazineCopy()
-        {
-            AddId();
-            IsBorrowed = false;
-        }
 
         public void AddId()
         {

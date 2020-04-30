@@ -18,35 +18,35 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         }
         static public void ReadProductsJson()
         {
-            using (StreamReader r = new StreamReader("Files/products.json"))
+            var json = File.ReadAllText("Files/products.json");
+            DataLists.ProductList = JsonConvert.DeserializeObject<List<Models.IProdukt>>(json, new JsonSerializerSettings
             {
-                string json = r.ReadToEnd();
-                DataLists.ProductList = JsonConvert.DeserializeObject<List<Models.IProdukt>>(json);
-            }
+                TypeNameHandling = TypeNameHandling.Objects
+            });
         }
         static public void ReadPhysicalProductsJson()
         {
-            using (StreamReader r = new StreamReader("Files/physicalProducts.json"))
+            string json = File.ReadAllText("Files/physicalProducts.json");
+            DataLists.PhysicalProductList = JsonConvert.DeserializeObject<List<Models.IpProduct>>(json, new JsonSerializerSettings
             {
-                string json = r.ReadToEnd();
-                DataLists.PhysicalProductList = JsonConvert.DeserializeObject<List<Models.IpProduct>>(json);
-            }
+                TypeNameHandling = TypeNameHandling.Objects
+            });
         }
         static public void ReadElectronicalProductsJson()
         {
-            using (StreamReader r = new StreamReader("Files/electronicalProducts.json"))
+            string json = File.ReadAllText("Files/electronicalProducts.json");
+            DataLists.ElectronicalProductList = JsonConvert.DeserializeObject<List<Models.IeProduct>>(json, new JsonSerializerSettings
             {
-                string json = r.ReadToEnd();
-                DataLists.ElectronicalProductList = JsonConvert.DeserializeObject<List<Models.IeProduct>>(json);
-            }
+                TypeNameHandling = TypeNameHandling.Objects
+            });
         }
         static public void ReadBorrowJson()
         {
-            using (StreamReader r = new StreamReader("Files/borrows.json"))
+            string json = File.ReadAllText("Files/borrows.json");
+            DataLists.BorrowProductList = JsonConvert.DeserializeObject<List<Models.IBorrow>>(json, new JsonSerializerSettings
             {
-                string json = r.ReadToEnd();
-                DataLists.BorrowProductList = JsonConvert.DeserializeObject<List<Models.IBorrow>>(json);
-            }
+                TypeNameHandling = TypeNameHandling.Objects
+            });
         }
         #endregion
 
@@ -58,29 +58,45 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
         }
         static public void WriteProductJson()
         {
-            string json = JsonConvert.SerializeObject(DataLists.ProductList.ToArray());
+            string json = JsonConvert.SerializeObject(DataLists.ProductList.ToArray(), Formatting.Indented, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
+            });
             System.IO.File.WriteAllText("Files/products.json", json);
         }
         static public void WritePhysicalProductsJson()
         {
-            string json = JsonConvert.SerializeObject(DataLists.PhysicalProductList.ToArray());
+            string json = JsonConvert.SerializeObject(DataLists.PhysicalProductList.ToArray(), Formatting.Indented, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
+            });
             System.IO.File.WriteAllText("Files/physicalProducts.json", json);
         }
         static public void WriteElectronicalProductsJson()
         {
-            string json = JsonConvert.SerializeObject(DataLists.ElectronicalProductList.ToArray());
+            string json = JsonConvert.SerializeObject(DataLists.ElectronicalProductList.ToArray(), Formatting.Indented, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
+            });
             System.IO.File.WriteAllText("Files/electronicalProducts.json", json);
         }
         static public void WriteBorrowJson()
         {
-            string json = JsonConvert.SerializeObject(DataLists.BorrowProductList.ToArray());
+            string json = JsonConvert.SerializeObject(DataLists.BorrowProductList.ToArray(), Formatting.Indented, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Objects,
+                TypeNameAssemblyFormat = System.Runtime.Serialization.Formatters.FormatterAssemblyStyle.Simple
+            });
             System.IO.File.WriteAllText("Files/borrows.json", json);
         }
 
         #endregion
 
         #region Hopefully Never Use Again
-        /*static public void ReadBooksJson()
+        static public void ReadBooksJson()
         {
             using (StreamReader r = new StreamReader("C:/Users/seongbae/Documents/BBW/Programmierung/Aufgabe(2)/Buecherei/books.json"))
             {
@@ -96,7 +112,7 @@ namespace _1._2_Bücherei_Jonas_Reichert.Controller
                 string json = r.ReadToEnd();
                 DataLists.Magazines = JsonConvert.DeserializeObject<List<Models.Magazin>>(json);
             }
-        }*/
+        }
         #endregion
     }
 }

@@ -9,12 +9,6 @@ namespace _1._2_Bücherei_Jonas_Reichert.Models
         public int ID { get; set; }
         public bool IsBorrowed { get; set; }
         public IProdukt Belonging { get; set; }
-        public PBookCopy()
-        {
-            AddId();
-            IsBorrowed = false;
-        }
-
         public void AddId()
         {
             ID = ++Controller.DataLists.IC.HighestPhysicalProductId;

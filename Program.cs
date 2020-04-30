@@ -7,6 +7,7 @@ namespace _1._2_Bücherei_Jonas_Reichert
     {
         static void Main(string[] args)
         {
+            //IWillHopefullyNeverUseYouAgain();
             Controller.ProgramLogic pL = new Controller.ProgramLogic();
             pL.ProofExistingFile();
             ProgramNavigation(pL);
@@ -209,7 +210,7 @@ namespace _1._2_Bücherei_Jonas_Reichert
             return input;
         }
         #endregion
-        /*static private void IWillHopefullyNeverUseYouAgain()
+        static private void IWillHopefullyNeverUseYouAgain()
         {
             Controller.DataLists.ProductList = new List<Models.IProdukt>();
             Controller.WriteAndReadFile.ReadBooksJson();
@@ -228,7 +229,7 @@ namespace _1._2_Bücherei_Jonas_Reichert
             Controller.WriteAndReadFile.WriteProductJson();
 
             Console.WriteLine("Finish");
-        }*/
+        }
         static private void ShowHelp()
         {
             Console.WriteLine("Some help!");

@@ -11,11 +11,6 @@ namespace _1._2_Bücherei_Jonas_Reichert.Models
         public DateTime StartBorrowDate { get; set; }
         public DateTime EndBorrowDate { get; set; }
         public object CopyBorrowed { get; set; }
-        public Borrow()
-        {
-            AddId();
-            SetCustomer();
-        }
         public void AddId()
         {
             ID = ++Controller.DataLists.IC.HighestBorrowId;

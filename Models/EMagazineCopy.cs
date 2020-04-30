@@ -7,22 +7,16 @@ namespace _1._2_Bücherei_Jonas_Reichert.Models
     class EMagazineCopy : IeProduct
     {
         public int ID { get; set; }
-        public bool IsBorrowed { get; set; }
         public string Link { get; set; }
         public IProdukt Belonging { get; set; }
-        public EMagazineCopy()
-        {
-            AddId();
-            IsBorrowed = false;
-        }
 
         public void AddId()
         {
             ID = ++Controller.DataLists.IC.HighestElectronicalProductId;
         }
-        public void ChangeBorrowed()
+        public void CreateLink()
         {
-            IsBorrowed = !IsBorrowed;
+            Link = "Link";
         }
         public void AddBelonging()
         {
